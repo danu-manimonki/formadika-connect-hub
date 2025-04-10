@@ -72,7 +72,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center">
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
+              src="/lovable-uploads/8061c654-de68-4ce2-968a-4484b60541a3.png" 
               alt="FORMADIKA Logo" 
               className="h-10 mr-2"
             />

@@ -18,8 +18,8 @@ const LogoProcessor = () => {
     const processLogo = async () => {
       try {
         setIsProcessing(true);
-        // Use the latest uploaded logo
-        const logoUrl = '/lovable-uploads/122bb325-10f3-46a3-b8f6-8e031d86d71b.png';
+        // Use the new uploaded logo
+        const logoUrl = '/lovable-uploads/8061c654-de68-4ce2-968a-4484b60541a3.png';
         
         // Fetch logo as blob
         const response = await fetch(logoUrl);
