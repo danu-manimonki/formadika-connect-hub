@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -93,7 +94,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-formadika-50">
-          <p>© {new Date().getFullYear()} FORMADIKA Karanganyar. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} FORMADIKA. All rights reserved.</p>
         </div>
       </div>
     </footer>

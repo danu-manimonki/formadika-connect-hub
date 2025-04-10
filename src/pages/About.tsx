@@ -1,4 +1,3 @@
-
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -147,7 +146,7 @@ const About = () => {
               Tentang Kami
             </div>
             <h1 className="text-4xl font-bold mb-6">
-              FORMADIKA Karanganyar
+              FORMADIKA
             </h1>
             <p className="text-xl text-formadika-50">
               Forum Mahasiswa Bidikmisi dan KIP-K Karanganyar — Komunitas mahasiswa dan alumni penerima beasiswa dari Karanganyar yang aktif sejak tahun 2012.
@@ -164,7 +163,7 @@ const About = () => {
                 Sejarah Kami
               </div>
               <h2 className="text-3xl font-bold mb-6">
-                Perjalanan FORMADIKA Karanganyar
+                Perjalanan FORMADIKA
               </h2>
               <div className="space-y-4 text-gray-600">
                 <p>
@@ -233,7 +232,7 @@ const About = () => {
             </div>
             <h2 className="text-3xl font-bold">Pengurus FORMADIKA</h2>
             <p className="text-gray-600 max-w-2xl mx-auto mt-4">
-              Kenali pengurus yang mengelola dan mengembangkan FORMADIKA Karanganyar.
+              Kenali pengurus yang mengelola dan mengembangkan FORMADIKA.
             </p>
           </div>
           
