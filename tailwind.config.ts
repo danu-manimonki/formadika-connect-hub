@@ -74,6 +74,10 @@ export default {
 					700: '#006979',
 					800: '#004751',
 					900: '#002228',
+					// New brand colors
+					teal: '#005c71',
+					gold: '#e69c0e',
+					brown: '#8b2d04',
 				}
 			},
 			borderRadius: {

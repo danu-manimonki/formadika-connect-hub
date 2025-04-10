@@ -27,8 +27,8 @@ const NavItem = ({ to, label, children, dropdown = false }: {
       <div className="relative">
         <button
           className={cn(
-            "flex items-center gap-1 px-3 py-2 text-foreground/80 hover:text-formadika-600 transition-colors",
-            isOpen && "text-formadika-600"
+            "flex items-center gap-1 px-3 py-2 text-foreground/80 hover:text-formadika-teal transition-colors",
+            isOpen && "text-formadika-teal"
           )}
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -46,7 +46,7 @@ const NavItem = ({ to, label, children, dropdown = false }: {
   return (
     <Link
       to={to}
-      className="px-3 py-2 text-foreground/80 hover:text-formadika-600 transition-colors"
+      className="px-3 py-2 text-foreground/80 hover:text-formadika-teal transition-colors"
     >
       {label}
     </Link>
@@ -56,7 +56,7 @@ const NavItem = ({ to, label, children, dropdown = false }: {
 const DropdownItem = ({ to, label, icon }: { to: string; label: string; icon?: React.ReactNode }) => (
   <Link
     to={to}
-    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-formadika-50 hover:text-formadika-600 transition-colors"
+    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-formadika-50 hover:text-formadika-teal transition-colors"
   >
     {icon} {label}
   </Link>
@@ -69,8 +69,17 @@ const Navbar = () => {
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16 px-4 mx-auto">
         <Link to="/" className="flex items-center">
-          <span className="text-xl font-bold text-formadika-600">FORMADIKA</span>
-          <span className="ml-2 text-xs font-medium bg-formadika-100 text-formadika-800 px-2 py-1 rounded-md">Karanganyar</span>
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
+              alt="FORMADIKA Logo" 
+              className="h-10 mr-2"
+            />
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-formadika-teal">FORMADIKA</span>
+              <span className="text-xs font-medium bg-formadika-50 text-formadika-teal px-2 py-0.5 rounded-md">Karanganyar</span>
+            </div>
+          </div>
         </Link>
 
         <div className="hidden md:flex items-center space-x-1">
@@ -92,7 +101,7 @@ const Navbar = () => {
           <NavItem to="/contact" label="Kontak" />
           
           <div className="ml-4">
-            <Button asChild variant="default" size="sm">
+            <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
               </Link>
@@ -112,34 +121,34 @@ const Navbar = () => {
         <div className="md:hidden bg-white border-b animate-fade-in">
           <div className="container px-4 py-4">
             <div className="flex flex-col space-y-3">
-              <Link to="/" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Beranda
               </Link>
-              <Link to="/about" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/about" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Tentang Kami
               </Link>
-              <Link to="/events" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/events" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kalender Kegiatan
               </Link>
-              <Link to="/gallery" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/gallery" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Galeri Dokumentasi
               </Link>
-              <Link to="/members" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/members" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Direktori Anggota
               </Link>
-              <Link to="/register" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/register" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Daftar Anggota
               </Link>
-              <Link to="/articles" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/articles" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Artikel
               </Link>
-              <Link to="/forum" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/forum" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Forum
               </Link>
-              <Link to="/contact" className="px-3 py-2 hover:text-formadika-600" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
               </Link>
-              <Button asChild variant="default" size="sm" className="w-full">
+              <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">
                 <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
                   <Heart size={16} className="mr-2" /> Donasi
                 </Link>

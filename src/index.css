@@ -16,16 +16,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 187 100% 39.6%;
+    /* Updated to match FORMADIKA teal color */
+    --primary: 190 90% 23%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 190 70% 94%;
+    /* Updated for accent color based on FORMADIKA gold */
+    --secondary: 41 84% 48%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 190 70% 94%;
+    /* Updated accent color to gold/yellow */
+    --accent: 41 84% 48%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,7 +36,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 187 100% 39.6%;
+    --ring: 190 90% 23%;
 
     --radius: 0.5rem;
 
@@ -45,6 +48,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* FORMADIKA brand colors */
+    --formadika-teal: 190 90% 23%;
+    --formadika-gold: 41 84% 48%;
+    --formadika-brown: 17 91% 27%;
   }
 
   .dark {
@@ -57,7 +65,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 187 100% 39.6%;
+    --primary: 190 90% 23%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -116,5 +124,17 @@
 
   .section-container {
     @apply container px-4 mx-auto;
+  }
+  
+  .tagline-teal {
+    @apply text-[#005c71] font-semibold;
+  }
+  
+  .tagline-gold {
+    @apply text-[#e69c0e] font-semibold;
+  }
+  
+  .tagline-brown {
+    @apply text-[#8b2d04] font-semibold;
   }
 }

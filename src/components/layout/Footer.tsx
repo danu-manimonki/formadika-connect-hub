@@ -11,15 +11,22 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-formadika-600 text-white">
+    <footer className="bg-formadika-teal text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center mb-4">
-              <h3 className="text-xl font-bold">FORMADIKA</h3>
-              <span className="ml-2 text-xs font-medium bg-white text-formadika-800 px-2 py-1 rounded-md">
-                Karanganyar
-              </span>
+              <img 
+                src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
+                alt="FORMADIKA Logo" 
+                className="h-12 mr-3"
+              />
+              <div>
+                <h3 className="text-xl font-bold">FORMADIKA</h3>
+                <span className="ml-0 text-xs font-medium bg-white text-formadika-teal px-2 py-1 rounded-md">
+                  Karanganyar
+                </span>
+              </div>
             </div>
             <p className="text-formadika-50 mb-6">
               Forum Mahasiswa Bidikmisi dan KIP-K Karanganyar - Komunitas mahasiswa dan alumni penerima beasiswa dari Karanganyar sejak 2012.
