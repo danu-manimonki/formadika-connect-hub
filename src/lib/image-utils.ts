@@ -47,7 +47,7 @@ export const removeBackground = async (imageElement: HTMLImageElement): Promise<
     const wasResized = resizeImageIfNeeded(canvas, ctx, imageElement);
     console.log(`Image ${wasResized ? 'was' : 'was not'} resized. Final dimensions: ${canvas.width}x${canvas.height}`);
     
-    const imageData = canvas.toDataURL('image/png', 1.0);
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
     console.log('Image converted to base64');
     
     console.log('Processing with segmentation model...');
@@ -76,9 +76,7 @@ export const removeBackground = async (imageElement: HTMLImageElement): Promise<
     const data = outputImageData.data;
     
     for (let i = 0; i < result[0].mask.data.length; i++) {
-      // Make sure we fully remove the background pixels
       const alpha = Math.round((1 - result[0].mask.data[i]) * 255);
-      // Set alpha to 0 for background pixels
       data[i * 4 + 3] = alpha;
     }
     
@@ -89,7 +87,7 @@ export const removeBackground = async (imageElement: HTMLImageElement): Promise<
       outputCanvas.toBlob(
         (blob) => {
           if (blob) {
-            console.log('Successfully created final blob with transparent background');
+            console.log('Successfully created final blob');
             resolve(blob);
           } else {
             reject(new Error('Failed to create blob'));
@@ -113,3 +111,4 @@ export const loadImage = (file: Blob): Promise<HTMLImageElement> => {
     img.src = URL.createObjectURL(file);
   });
 };
+
