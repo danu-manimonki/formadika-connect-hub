@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -71,13 +70,12 @@ const Navbar = () => {
         <Link to="/" className="flex items-center">
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png" 
+              src="/lovable-uploads/7dbc8780-1573-4f93-8b44-63c106a0fb67.png" 
               alt="FORMADIKA Logo" 
               className="h-10 mr-2"
             />
             <div className="flex flex-col">
               <span className="text-xl font-bold text-formadika-teal">FORMADIKA</span>
-              <span className="text-xs font-medium bg-formadika-50 text-formadika-teal px-2 py-0.5 rounded-md">Karanganyar</span>
             </div>
           </div>
         </Link>

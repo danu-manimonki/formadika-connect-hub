@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
@@ -10,13 +11,13 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
             <img 
-              src="/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png" 
+              src="/lovable-uploads/7dbc8780-1573-4f93-8b44-63c106a0fb67.png" 
               alt="FORMADIKA Logo" 
               className="h-24 md:h-28"
             />
           </div>
           <h1 className="text-white mb-2">
-            FORMADIKA Karanganyar
+            FORMADIKA
           </h1>
           <div className="mb-6 text-center">
             <p className="text-xl md:text-2xl font-medium">

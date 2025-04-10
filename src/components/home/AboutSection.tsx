@@ -20,7 +20,7 @@ const AboutSection = () => {
             <div className="inline-flex items-center py-1 px-3 mb-4 rounded-full text-sm font-medium bg-formadika-100 text-formadika-800">
               Tentang Kami
             </div>
-            <h2 className="text-3xl font-bold mb-4">FORMADIKA Karanganyar</h2>
+            <h2 className="text-3xl font-bold mb-4">FORMADIKA</h2>
             <p className="text-gray-700 mb-6">
               FORMADIKA (Forum Mahasiswa Bidikmisi dan KIP-K Karanganyar) adalah komunitas mahasiswa dan alumni penerima beasiswa dari Karanganyar yang aktif sejak tahun 2012.
             </p>

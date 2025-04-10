@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -17,7 +18,7 @@ const LogoProcessor = () => {
     const processLogo = async () => {
       try {
         setIsProcessing(true);
-        const logoUrl = '/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png';
+        const logoUrl = '/lovable-uploads/7dbc8780-1573-4f93-8b44-63c106a0fb67.png';
         
         const response = await fetch(logoUrl);
         const blob = await response.blob();
