@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
+import { ArrowRight, Users, Calendar, BookOpen, Image } from 'lucide-react';
 
 const HeroSection = () => {
   return (
@@ -37,6 +37,11 @@ const HeroSection = () => {
             </Button>
             <Button asChild size="lg" variant="outline" className="bg-white/10 text-white hover:bg-white/20 hover:text-white">
               <Link to="/about">Tentang Kami</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="bg-white/10 text-white hover:bg-white/20 hover:text-white">
+              <Link to="/logo-processor">
+                <Image className="mr-2 h-4 w-4" /> Logo Transparan
+              </Link>
             </Button>
           </div>
         </div>

@@ -11,7 +11,8 @@ import {
   Users,
   BookOpen,
   MessageSquare,
-  Heart
+  Heart,
+  Image
 } from 'lucide-react';
 
 const NavItem = ({ to, label, children, dropdown = false }: { 
@@ -100,7 +101,12 @@ const Navbar = () => {
           <NavItem to="/forum" label="Forum" />
           <NavItem to="/contact" label="Kontak" />
           
-          <div className="ml-4">
+          <div className="ml-4 flex gap-2">
+            <Button asChild variant="outline" size="sm" className="text-formadika-teal border-formadika-teal hover:bg-formadika-50">
+              <Link to="/logo-processor" className="flex items-center gap-1">
+                <Image size={16} className="mr-1" /> Logo
+              </Link>
+            </Button>
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
@@ -147,6 +153,9 @@ const Navbar = () => {
               </Link>
               <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
+              </Link>
+              <Link to="/logo-processor" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
+                Logo Processor
               </Link>
               <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">
                 <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
