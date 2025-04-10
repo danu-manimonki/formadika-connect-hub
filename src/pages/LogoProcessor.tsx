@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -18,18 +17,14 @@ const LogoProcessor = () => {
     const processLogo = async () => {
       try {
         setIsProcessing(true);
-        // Asumsikan logo tersimpan di public folder
-        const logoUrl = '/lovable-uploads/bc314846-3d95-4bf4-a7df-9ec366209fc5.png';
+        const logoUrl = '/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png';
         
-        // Fetch logo sebagai blob
         const response = await fetch(logoUrl);
         const blob = await response.blob();
         
-        // Load image sebagai HTMLImageElement
         const img = await loadImage(blob);
         setOriginalImage(URL.createObjectURL(blob));
         
-        // Hapus background
         const processedBlob = await removeBackground(img);
         setProcessedImage(URL.createObjectURL(processedBlob));
         

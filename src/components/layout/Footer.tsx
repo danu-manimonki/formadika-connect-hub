@@ -16,7 +16,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center mb-4">
               <img 
-                src="/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png" 
+                src="/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png" 
                 alt="FORMADIKA Logo" 
                 className="h-12 mr-3"
               />

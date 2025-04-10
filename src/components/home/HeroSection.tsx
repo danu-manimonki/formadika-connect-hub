@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
@@ -11,7 +10,7 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
             <img 
-              src="/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png" 
+              src="/lovable-uploads/8c77ad66-c0b5-4a07-8909-497eccc72e0d.png" 
               alt="FORMADIKA Logo" 
               className="h-24 md:h-28"
             />
