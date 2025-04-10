@@ -11,7 +11,7 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
             <img 
-              src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
+              src="/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png" 
               alt="FORMADIKA Logo" 
               className="h-24 md:h-28"
             />
