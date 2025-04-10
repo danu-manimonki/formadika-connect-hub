@@ -18,18 +18,18 @@ const LogoProcessor = () => {
     const processLogo = async () => {
       try {
         setIsProcessing(true);
-        // Asumsikan logo tersimpan di public folder
-        const logoUrl = '/lovable-uploads/bc314846-3d95-4bf4-a7df-9ec366209fc5.png';
+        // Use the logo with fe16e809-d382-4b1a-9388-b91ae309c98a ID
+        const logoUrl = '/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png';
         
-        // Fetch logo sebagai blob
+        // Fetch logo as blob
         const response = await fetch(logoUrl);
         const blob = await response.blob();
         
-        // Load image sebagai HTMLImageElement
+        // Load image as HTMLImageElement
         const img = await loadImage(blob);
         setOriginalImage(URL.createObjectURL(blob));
         
-        // Hapus background
+        // Process to remove background
         const processedBlob = await removeBackground(img);
         setProcessedImage(URL.createObjectURL(processedBlob));
         
