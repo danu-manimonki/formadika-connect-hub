@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Facebook, 
@@ -16,7 +17,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center mb-4">
               <img 
-                src="/lovable-uploads/8061c654-de68-4ce2-968a-4484b60541a3.png" 
+                src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
                 alt="FORMADIKA Logo" 
                 className="h-12 mr-3"
               />

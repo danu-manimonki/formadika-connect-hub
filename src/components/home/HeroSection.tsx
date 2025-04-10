@@ -1,6 +1,7 @@
+
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, Calendar, BookOpen, Image } from 'lucide-react';
+import { ArrowRight, Users, Calendar, BookOpen } from 'lucide-react';
 
 const HeroSection = () => {
   return (
@@ -10,7 +11,7 @@ const HeroSection = () => {
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
             <img 
-              src="/lovable-uploads/8061c654-de68-4ce2-968a-4484b60541a3.png" 
+              src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
               alt="FORMADIKA Logo" 
               className="h-24 md:h-28"
             />
@@ -36,11 +37,6 @@ const HeroSection = () => {
             </Button>
             <Button asChild size="lg" variant="outline" className="bg-white/10 text-white hover:bg-white/20 hover:text-white">
               <Link to="/about">Tentang Kami</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="bg-white/10 text-white hover:bg-white/20 hover:text-white">
-              <Link to="/logo-processor">
-                <Image className="mr-2 h-4 w-4" /> Logo Transparan
-              </Link>
             </Button>
           </div>
         </div>

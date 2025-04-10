@@ -11,8 +11,7 @@ import {
   Users,
   BookOpen,
   MessageSquare,
-  Heart,
-  Image
+  Heart
 } from 'lucide-react';
 
 const NavItem = ({ to, label, children, dropdown = false }: { 
@@ -72,7 +71,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center">
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/8061c654-de68-4ce2-968a-4484b60541a3.png" 
+              src="/lovable-uploads/7b14fac9-3021-4d9e-985a-56c2299fba6c.png" 
               alt="FORMADIKA Logo" 
               className="h-10 mr-2"
             />
@@ -101,12 +100,7 @@ const Navbar = () => {
           <NavItem to="/forum" label="Forum" />
           <NavItem to="/contact" label="Kontak" />
           
-          <div className="ml-4 flex gap-2">
-            <Button asChild variant="outline" size="sm" className="text-formadika-teal border-formadika-teal hover:bg-formadika-50">
-              <Link to="/logo-processor" className="flex items-center gap-1">
-                <Image size={16} className="mr-1" /> Logo
-              </Link>
-            </Button>
+          <div className="ml-4">
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
@@ -153,9 +147,6 @@ const Navbar = () => {
               </Link>
               <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
-              </Link>
-              <Link to="/logo-processor" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
-                Logo Processor
               </Link>
               <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">
                 <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
