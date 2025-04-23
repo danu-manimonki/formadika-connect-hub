@@ -1,61 +1,14 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
 
 export default function Admin() {
-  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [isChecking, setIsChecking] = useState(true);
-
+  
   useEffect(() => {
-    console.log("Admin page - User:", user?.email);
-    console.log("Admin page - Is admin:", isAdmin);
-    
-    const checkAccess = async () => {
-      if (!loading) {
-        setIsChecking(false);
-        
-        if (!user) {
-          console.log("No user, redirecting to auth");
-          toast({
-            title: "Akses Ditolak",
-            description: "Anda harus login terlebih dahulu",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
-        } 
-        
-        if (!isAdmin) {
-          console.log("Not admin, redirecting to home");
-          toast({
-            title: "Akses Ditolak",
-            description: "Anda tidak memiliki akses admin",
-            variant: "destructive",
-          });
-          navigate('/');
-          return;
-        }
-        
-        // Redirect to the new Dashboard page
-        navigate('/dashboard');
-      }
-    };
-
-    checkAccess();
-  }, [user, isAdmin, navigate, loading]);
-
-  if (loading || isChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Memverifikasi akses...</span>
-      </div>
-    );
-  }
+    // Simply redirect to dashboard
+    navigate('/dashboard');
+  }, [navigate]);
 
   return null; // This page will just redirect
 }
