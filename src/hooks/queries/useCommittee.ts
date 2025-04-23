@@ -2,10 +2,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface CommitteeMember {
+  id: string;
+  name: string;
+  position: string;
+  period: string;
+  university?: string;
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {}
+interface CommitteeUpdate extends Partial<CommitteeInsert> {
+  id: string;
+}
+
 export function useCommittee() {
   const queryClient = useQueryClient();
 
-  const fetchCommittee = async () => {
+  const fetchCommittee = async (): Promise<CommitteeMember[]> => {
     const { data, error } = await supabase
       .from('committee')
       .select('*')
@@ -15,7 +31,7 @@ export function useCommittee() {
     return data;
   };
 
-  const createCommittee = async (newData: any) => {
+  const createCommittee = async (newData: CommitteeInsert): Promise<CommitteeMember> => {
     const { data, error } = await supabase
       .from('committee')
       .insert([newData])
@@ -26,7 +42,7 @@ export function useCommittee() {
     return data;
   };
 
-  const updateCommittee = async ({ id, ...updateData }: any) => {
+  const updateCommittee = async ({ id, ...updateData }: CommitteeUpdate): Promise<CommitteeMember> => {
     const { data, error } = await supabase
       .from('committee')
       .update(updateData)
@@ -38,7 +54,7 @@ export function useCommittee() {
     return data;
   };
 
-  const deleteCommittee = async (id: string) => {
+  const deleteCommittee = async (id: string): Promise<void> => {
     const { error } = await supabase
       .from('committee')
       .delete()

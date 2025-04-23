@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useCommittee } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -17,7 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -26,8 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { CommitteeForm } from "./committee/CommitteeForm";
+import { CommitteeTable } from "./committee/CommitteeTable";
+import { CommitteeFilters } from "./committee/CommitteeFilters";
 
 export default function CommitteeSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,58 +129,10 @@ export default function CommitteeSection() {
                 {editingMember ? "Edit Pengurus" : "Tambah Pengurus Baru"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nama</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  defaultValue={editingMember?.name}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="position">Jabatan</Label>
-                <Input
-                  id="position"
-                  name="position"
-                  defaultValue={editingMember?.position}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="period">Periode</Label>
-                <Input
-                  id="period"
-                  name="period"
-                  defaultValue={editingMember?.period}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="university">Universitas</Label>
-                <Input
-                  id="university"
-                  name="university"
-                  defaultValue={editingMember?.university}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  name="status"
-                  className="w-full border rounded-md p-2"
-                  defaultValue={editingMember?.status || "active"}
-                >
-                  <option value="active">Aktif</option>
-                  <option value="inactive">Tidak Aktif</option>
-                </select>
-              </div>
-              <Button type="submit" className="w-full">
-                {editingMember ? "Simpan Perubahan" : "Tambah Pengurus"}
-              </Button>
-            </form>
+            <CommitteeForm 
+              editingMember={editingMember} 
+              onSubmit={handleSubmit} 
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -192,40 +145,12 @@ export default function CommitteeSection() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-start md:items-center">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cari berdasarkan nama atau jabatan..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={filter === "all" ? "secondary" : "outline"}
-                onClick={() => setFilter("all")}
-                size="sm"
-              >
-                Semua
-              </Button>
-              <Button
-                variant={filter === "active" ? "secondary" : "outline"}
-                onClick={() => setFilter("active")}
-                size="sm"
-              >
-                Aktif
-              </Button>
-              <Button
-                variant={filter === "inactive" ? "secondary" : "outline"}
-                onClick={() => setFilter("inactive")}
-                size="sm"
-              >
-                Tidak Aktif
-              </Button>
-            </div>
-          </div>
+          <CommitteeFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            filter={filter}
+            onFilterChange={setFilter}
+          />
 
           <div className="rounded-md border">
             <Table>
@@ -240,63 +165,15 @@ export default function CommitteeSection() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredCommittee.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-6 text-muted-foreground"
-                    >
-                      Tidak ada data pengurus yang sesuai filter
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredCommittee.map((member: any) => (
-                    <TableRow key={member.id}>
-                      <TableCell className="font-medium">{member.name}</TableCell>
-                      <TableCell>{member.position}</TableCell>
-                      <TableCell>{member.period}</TableCell>
-                      <TableCell>{member.university}</TableCell>
-                      <TableCell>
-                        <div
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            member.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {member.status === "active" ? "Aktif" : "Tidak Aktif"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setEditingMember(member);
-                              setIsAddDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(member.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                <CommitteeTable
+                  isLoading={isLoading}
+                  committee={filteredCommittee}
+                  onEdit={(member) => {
+                    setEditingMember(member);
+                    setIsAddDialogOpen(true);
+                  }}
+                  onDelete={handleDelete}
+                />
               </TableBody>
             </Table>
           </div>
