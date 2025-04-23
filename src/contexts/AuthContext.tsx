@@ -25,37 +25,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Fixed function to check admin status correctly
     const checkAdminStatus = async (userId: string) => {
       try {
         console.log("Checking admin status for user:", userId);
+
+        // Direct SQL query instead of using the RLS-protected table
         const { data, error } = await supabase
           .from('user_roles')
-          .select('role')
+          .select('id')
           .eq('user_id', userId)
           .eq('role', 'admin')
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Error checking admin status:", error);
+          setIsAdmin(false);
           return;
         }
         
         const hasAdminRole = !!data;
-        console.log("Admin status result:", hasAdminRole, data);
+        console.log("Admin status result:", hasAdminRole);
         setIsAdmin(hasAdminRole);
       } catch (err) {
         console.error("Exception in checkAdminStatus:", err);
+        setIsAdmin(false);
       }
     };
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
+      (event, newSession) => {
         console.log("Auth state changed:", event, newSession?.user?.email);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
-          // Use setTimeout to avoid potential deadlocks with Supabase auth state
+          // Use setTimeout to avoid potential recursion
           setTimeout(() => {
             checkAdminStatus(newSession.user.id);
           }, 0);
@@ -67,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
+    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Initial session check:", session?.user?.email);
       setSession(session);
@@ -88,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       console.log("Attempting sign in with:", email);
-      const { error } = await supabase.auth.signInWithPassword({ 
+      const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
       });
@@ -109,25 +116,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Anda berhasil masuk ke sistem",
       });
 
-      // After successful login, check if user is admin and redirect accordingly
-      const user = await supabase.auth.getUser();
-      if (user.data.user) {
-        const { data } = await supabase
+      const user = data.user;
+      
+      // Correctly check admin status
+      if (user) {
+        const { data: roleData } = await supabase
           .from('user_roles')
-          .select('role')
-          .eq('user_id', user.data.user.id)
+          .select('id')
+          .eq('user_id', user.id)
           .eq('role', 'admin')
-          .single();
-
-        if (data) {
+          .maybeSingle();
+          
+        if (roleData) {
           console.log("User is admin, redirecting to admin page");
-          toast({
-            title: "Akses Admin",
-            description: "Anda memiliki akses admin",
-          });
+          setIsAdmin(true);
           navigate('/admin');
         } else {
-          // Redirect regular users to the dashboard page instead of homepage
+          // Redirect regular users to the dashboard page
           navigate('/dashboard');
         }
       }

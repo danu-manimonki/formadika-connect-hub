@@ -21,9 +21,14 @@ export default function Auth() {
   useEffect(() => {
     // Redirect if user is already logged in
     if (user) {
+      console.log("Auth - User already logged in:", user.email);
+      console.log("Auth - User admin status:", isAdmin);
+      
       if (isAdmin) {
+        console.log("Redirecting admin to admin page");
         navigate('/admin');
       } else {
+        console.log("Redirecting user to dashboard");
         navigate('/dashboard');
       }
     }

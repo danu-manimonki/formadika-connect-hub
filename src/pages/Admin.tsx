@@ -18,6 +18,7 @@ export default function Admin() {
     console.log("Admin page - Loading:", loading);
 
     const checkAccess = async () => {
+      // Only proceed when loading is complete
       if (!loading) {
         setIsChecking(false);
         
@@ -29,27 +30,23 @@ export default function Admin() {
             variant: "destructive",
           });
           navigate('/auth');
-        } else if (!isAdmin) {
-          console.log("Not admin, redirecting to home");
+          return;
+        } 
+        
+        if (!isAdmin) {
+          console.log("Not admin, redirecting to dashboard");
           toast({
             title: "Akses Ditolak",
             description: "Anda tidak memiliki akses admin",
             variant: "destructive",
           });
-          navigate('/');
+          navigate('/dashboard');
         }
       }
     };
 
     checkAccess();
   }, [user, isAdmin, navigate, loading]);
-
-  // Add a navbar link to the admin page
-  useEffect(() => {
-    if (user && isAdmin) {
-      console.log("User is admin, should render admin dashboard");
-    }
-  }, [user, isAdmin]);
 
   if (loading || isChecking) {
     return (
