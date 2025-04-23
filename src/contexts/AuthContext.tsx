@@ -127,7 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           navigate('/admin');
         } else {
-          navigate('/');
+          // Redirect regular users to the dashboard page instead of homepage
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {

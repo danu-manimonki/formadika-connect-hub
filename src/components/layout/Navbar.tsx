@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -115,8 +116,8 @@ const Navbar = () => {
                     <LayoutDashboard size={16} className="mr-1" /> Dashboard
                   </Link>
                 ) : (
-                  <Link to="/auth" className="flex items-center gap-1">
-                    <LogIn size={16} className="mr-1" /> Akun
+                  <Link to="/dashboard" className="flex items-center gap-1">
+                    <LayoutDashboard size={16} className="mr-1" /> Dashboard
                   </Link>
                 )
               ) : (
@@ -183,11 +184,11 @@ const Navbar = () => {
                   </Link>
                 ) : (
                   <Link 
-                    to="/auth" 
+                    to="/dashboard" 
                     className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <LogIn size={16} /> Akun
+                    <LayoutDashboard size={16} /> Dashboard
                   </Link>
                 )
               ) : (
