@@ -8,13 +8,17 @@ export interface CommitteeMember {
   name: string;
   position: string;
   period: string;
-  university?: string | null;
+  university: string; // Changed from optional to required to match DB schema
   status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
 
-export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {}
+// Updated to match the database schema requirements
+export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {
+  university: string; // Explicitly marking as required
+}
+
 export interface CommitteeUpdate extends Partial<CommitteeInsert> {
   id: string;
 }
@@ -58,9 +62,10 @@ export function useCommittee() {
       throw authError;
     }
     
+    // Fixed: Pass newData directly, not in an array
     const { data, error } = await supabase
       .from('committee')
-      .insert([newData])
+      .insert(newData)
       .select()
       .single();
 
