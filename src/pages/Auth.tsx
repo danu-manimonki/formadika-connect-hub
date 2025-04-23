@@ -9,17 +9,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signIn } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signIn(email, password);
+      if (isSignUp) {
+        await signUp(email, password);
+        toast({
+          title: "Berhasil",
+          description: "Akun berhasil dibuat",
+          variant: "default"
+        });
+      } else {
+        await signIn(email, password);
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Invalid login credentials",
+        description: isSignUp ? "Gagal membuat akun" : "Login gagal",
         variant: "destructive"
       });
     }
@@ -29,8 +39,10 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Sign in to access your account</CardDescription>
+          <CardTitle>{isSignUp ? "Buat Akun Baru" : "Selamat Datang"}</CardTitle>
+          <CardDescription>
+            {isSignUp ? "Daftar untuk mulai bergabung" : "Masuk ke akun Anda"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -53,8 +65,19 @@ export default function Auth() {
               />
             </div>
             <Button type="submit" className="w-full">
-              Sign In
+              {isSignUp ? "Daftar" : "Masuk"}
             </Button>
+            <div className="text-center mt-4">
+              <Button 
+                type="button" 
+                variant="link" 
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp 
+                  ? "Sudah punya akun? Masuk" 
+                  : "Belum punya akun? Daftar"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

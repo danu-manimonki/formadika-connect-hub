@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
   isAdmin: boolean;
@@ -24,7 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check admin status
     const checkAdminStatus = async () => {
       if (user) {
         const { data, error } = await supabase
@@ -38,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
@@ -47,12 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (session?.user) {
           await checkAdminStatus();
-          navigate('/admin');
+          navigate('/');
         }
       }
     );
 
-    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -86,6 +84,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signUp = async (email: string, password: string) => {
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      toast({
+        title: "Pendaftaran Gagal",
+        description: error.message,
+        variant: "destructive"
+      });
+      setLoading(false);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate('/auth');
@@ -96,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, 
       session, 
       signIn, 
+      signUp, 
       signOut, 
       loading,
       isAdmin 
