@@ -71,11 +71,12 @@ export default function Dashboard() {
   // Allow access for hardcoded admin even without Supabase auth
   if ((!user && !isHardcodedAdmin) || (!isAdmin && !isHardcodedAdmin)) return null;
 
-  const handleSignOut = () => {
+  const handleSignOut = async (): Promise<void> => {
     if (signOut) {
-      signOut();
+      await signOut();
     }
     navigate('/auth');
+    return Promise.resolve();
   };
 
   return (
