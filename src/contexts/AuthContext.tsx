@@ -25,12 +25,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (user) {
+    const checkAdminStatus = async (userId: string) => {
+      try {
+        console.log("Checking admin status for user:", userId);
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('role', 'admin')
           .single();
 
@@ -38,21 +39,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error("Error checking admin status:", error);
         }
         
-        setIsAdmin(!!data);
+        const hasAdminRole = !!data;
+        console.log("Admin status result:", hasAdminRole, data);
+        setIsAdmin(hasAdminRole);
+      } catch (err) {
+        console.error("Exception in checkAdminStatus:", err);
       }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+      async (event, newSession) => {
+        console.log("Auth state changed:", event, newSession?.user?.email);
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        if (session?.user) {
-          await checkAdminStatus();
-          navigate('/');
+        if (newSession?.user) {
+          // Use setTimeout to avoid potential deadlocks with Supabase auth state
+          setTimeout(() => {
+            checkAdminStatus(newSession.user.id);
+          }, 0);
+        } else {
+          setIsAdmin(false);
         }
+        
+        setLoading(false);
       }
     );
 
@@ -60,34 +70,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Initial session check:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
       
       if (session?.user) {
-        checkAdminStatus();
+        checkAdminStatus(session.user.id);
       }
+      
+      setLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [user, navigate]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ 
-      email, 
-      password 
-    });
+    try {
+      console.log("Attempting sign in with:", email);
+      const { error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
 
-    if (error) {
-      console.error("Sign in error:", error);
+      if (error) {
+        console.error("Sign in error:", error);
+        toast({
+          title: "Login Gagal",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      }
+      
+      // Successful login
+      toast({
+        title: "Login Berhasil",
+        description: "Anda berhasil masuk ke sistem",
+      });
+
+      // Navigation is now handled by the onAuthStateChange event
+    } catch (error: any) {
+      console.error("Exception during sign in:", error);
       toast({
         title: "Login Gagal",
-        description: error.message,
+        description: error?.message || "Terjadi kesalahan saat login",
         variant: "destructive"
       });
+    } finally {
       setLoading(false);
-      throw error;
     }
   };
 
@@ -95,26 +125,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     console.log("Attempting signup with:", email);
     
-    const { error, data } = await supabase.auth.signUp({
-      email,
-      password
-    });
+    try {
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password
+      });
 
-    if (error) {
-      console.error("Sign up error:", error);
+      if (error) {
+        console.error("Sign up error:", error);
+        toast({
+          title: "Pendaftaran Gagal",
+          description: error.message,
+          variant: "destructive"
+        });
+        throw error;
+      }
+      
+      console.log("Signup response:", data);
+      toast({
+        title: "Pendaftaran Berhasil",
+        description: "Akun berhasil dibuat. Silakan masuk dengan akun baru Anda.",
+      });
+    } catch (error: any) {
+      console.error("Exception during sign up:", error);
       toast({
         title: "Pendaftaran Gagal",
-        description: error.message,
+        description: error?.message || "Terjadi kesalahan saat pendaftaran",
         variant: "destructive"
       });
+    } finally {
       setLoading(false);
-      throw error;
     }
-    
-    console.log("Signup response:", data);
-    
-    setLoading(false);
-    // Don't auto-login after signup to allow for email verification if enabled
   };
 
   const signOut = async () => {
