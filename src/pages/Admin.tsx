@@ -6,16 +6,18 @@ import { Button } from '@/components/ui/button';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 
 export default function Admin() {
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
+    } else if (!isAdmin) {
+      navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, isAdmin, navigate]);
 
-  if (!user) return null;
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

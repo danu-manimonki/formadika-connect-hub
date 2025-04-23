@@ -137,7 +137,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_admin_role: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
