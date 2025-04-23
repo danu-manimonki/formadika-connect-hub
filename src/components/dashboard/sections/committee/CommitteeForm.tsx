@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CommitteeMember } from "@/hooks/queries/useCommittee";
 
 interface CommitteeFormProps {
@@ -36,6 +37,7 @@ export function CommitteeForm({ editingMember, onSubmit }: CommitteeFormProps) {
           id="period"
           name="period"
           defaultValue={editingMember?.period}
+          placeholder="contoh: 2024-2025"
           required
         />
       </div>
@@ -49,15 +51,15 @@ export function CommitteeForm({ editingMember, onSubmit }: CommitteeFormProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
-        <select
-          id="status"
-          name="status"
-          className="w-full border rounded-md p-2"
-          defaultValue={editingMember?.status || "active"}
-        >
-          <option value="active">Aktif</option>
-          <option value="inactive">Tidak Aktif</option>
-        </select>
+        <Select name="status" defaultValue={editingMember?.status || "active"}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Aktif</SelectItem>
+            <SelectItem value="inactive">Tidak Aktif</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" className="w-full">
         {editingMember ? "Simpan Perubahan" : "Tambah Pengurus"}

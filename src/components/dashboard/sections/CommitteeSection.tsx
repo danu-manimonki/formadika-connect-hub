@@ -1,13 +1,12 @@
-
 import { useState } from "react";
 import { useCommittee, type CommitteeMember } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -16,16 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { CommitteeForm } from "./committee/CommitteeForm";
 import { CommitteeTable } from "./committee/CommitteeTable";
 import { CommitteeFilters } from "./committee/CommitteeFilters";
@@ -62,14 +53,14 @@ export default function CommitteeSection() {
           ...memberData,
         });
         toast({
-          title: "Success",
-          description: "Member updated successfully",
+          title: "Berhasil",
+          description: "Data pengurus berhasil diperbarui",
         });
       } else {
         await createMutation.mutateAsync(memberData);
         toast({
-          title: "Success",
-          description: "New member added successfully",
+          title: "Berhasil",
+          description: "Pengurus baru berhasil ditambahkan",
         });
       }
       setIsAddDialogOpen(false);
@@ -87,8 +78,8 @@ export default function CommitteeSection() {
     try {
       await deleteMutation.mutateAsync(id);
       toast({
-        title: "Success",
-        description: "Member deleted successfully",
+        title: "Berhasil",
+        description: "Data pengurus berhasil dihapus",
       });
     } catch (error: any) {
       toast({
