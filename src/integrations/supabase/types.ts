@@ -240,6 +240,14 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      has_role: {
+        Args: { user_id: string; role: string }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
