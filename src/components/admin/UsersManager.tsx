@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -34,7 +33,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Trash2, PencilIcon, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,6 +57,7 @@ export default function UsersManager() {
     role: 'member'
   });
   const { user: currentUser } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchUsers();
@@ -66,45 +66,49 @@ export default function UsersManager() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
+      console.log("Fetching users...");
       const { data: authUsers, error: authError } = await supabase
         .from('profiles')
         .select('id, created_at');
       
-      if (authError) throw authError;
+      if (authError) {
+        console.error("Error fetching profiles:", authError);
+        throw authError;
+      }
 
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-      
-      if (rolesError) throw rolesError;
+      console.log("Fetched profiles:", authUsers);
 
-      // Get emails from auth.users via profiles table
-      const userIds = authUsers.map(user => user.id);
-      const usersData = await Promise.all(
-        userIds.map(async (userId) => {
-          const { data, error } = await supabase.auth.admin.getUserById(userId);
-          if (error) {
-            console.error(`Error fetching user ${userId}:`, error);
-            return null;
+      // Get roles for each user
+      const usersWithRoles = await Promise.all(
+        authUsers.map(async (user) => {
+          // Check if user has admin role using our RPC function
+          const { data: isAdmin, error: roleError } = await supabase
+            .rpc('has_role', { user_id: user.id, role: 'admin' });
+
+          if (roleError) {
+            console.error(`Error checking role for user ${user.id}:`, roleError);
           }
-          return data?.user || null;
+
+          // Get user email from auth.users via admin API 
+          // (in a real app, this would be a server API call)
+          let email = "Loading...";
+          try {
+            const { data: userData } = await supabase.auth.admin.getUserById(user.id);
+            email = userData?.user?.email || "Unknown Email";
+          } catch (error) {
+            console.error(`Error getting user email for ${user.id}:`, error);
+          }
+
+          return {
+            id: user.id,
+            email: email,
+            role: isAdmin ? 'admin' : 'member',
+            created_at: user.created_at
+          };
         })
       );
 
-      // Combine data
-      const combinedUsers = authUsers
-        .filter((_, i) => usersData[i] !== null)
-        .map((profile, i) => {
-          const userRole = userRoles.find(role => role.user_id === profile.id)?.role || 'member';
-          return {
-            id: profile.id,
-            email: usersData[i]?.email || 'Unknown Email',
-            role: userRole,
-            created_at: profile.created_at
-          };
-        });
-
-      setUsers(combinedUsers);
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -160,32 +164,27 @@ export default function UsersManager() {
     if (!selectedUser) return;
     
     try {
-      // Find existing role record
-      const { data: existingRole } = await supabase
+      console.log(`Updating role for user ${selectedUser.id} to ${formData.role}`);
+
+      // Delete existing roles first
+      const { error: deleteError } = await supabase
         .from('user_roles')
-        .select('*')
-        .eq('user_id', selectedUser.id)
-        .eq('role', selectedUser.role)
-        .single();
+        .delete()
+        .eq('user_id', selectedUser.id);
+        
+      if (deleteError) {
+        console.error("Error deleting existing roles:", deleteError);
+        throw deleteError;
+      }
 
-      if (existingRole) {
-        // If role exists and is different, delete old one
-        if (existingRole.role !== formData.role) {
-          await supabase
-            .from('user_roles')
-            .delete()
-            .eq('id', existingRole.id);
-
-          // Insert new role
-          await supabase
-            .from('user_roles')
-            .insert({ user_id: selectedUser.id, role: formData.role });
-        }
-      } else {
-        // Insert new role
-        await supabase
-          .from('user_roles')
-          .insert({ user_id: selectedUser.id, role: formData.role });
+      // Insert new role
+      const { error: insertError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: selectedUser.id, role: formData.role });
+        
+      if (insertError) {
+        console.error("Error inserting new role:", insertError);
+        throw insertError;
       }
 
       toast({

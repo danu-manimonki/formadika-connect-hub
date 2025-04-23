@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -23,37 +23,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Fixed function to check admin status correctly
-    const checkAdminStatus = async (userId: string) => {
-      try {
-        console.log("Checking admin status for user:", userId);
-
-        // Direct SQL query instead of using the RLS-protected table
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        if (error) {
-          console.error("Error checking admin status:", error);
-          setIsAdmin(false);
-          return;
-        }
-        
-        const hasAdminRole = !!data;
-        console.log("Admin status result:", hasAdminRole);
-        setIsAdmin(hasAdminRole);
-      } catch (err) {
-        console.error("Exception in checkAdminStatus:", err);
-        setIsAdmin(false);
-      }
-    };
-
-    // Set up auth state change listener
+    // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log("Auth state changed:", event, newSession?.user?.email);
@@ -73,23 +46,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        checkAdminStatus(session.user.id);
+    // THEN check for existing session
+    const initializeAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          return;
+        }
+        
+        if (data.session) {
+          setSession(data.session);
+          setUser(data.session.user);
+          
+          if (data.session.user) {
+            checkAdminStatus(data.session.user.id);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to initialize auth:", err);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
-    });
+    };
+    
+    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Fixed function to check admin status correctly
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      console.log("Checking admin status for user:", userId);
+
+      // Use the has_role function we created in SQL
+      const { data, error } = await supabase
+        .rpc('has_role', { 
+          user_id: userId, 
+          role: 'admin' 
+        });
+
+      if (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+        return;
+      }
+      
+      console.log("Admin status result:", data);
+      setIsAdmin(!!data);
+    } catch (err) {
+      console.error("Exception in checkAdminStatus:", err);
+      setIsAdmin(false);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
@@ -116,26 +129,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Anda berhasil masuk ke sistem",
       });
 
-      const user = data.user;
-      
-      // Correctly check admin status
-      if (user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-          
-        if (roleData) {
-          console.log("User is admin, redirecting to admin page");
-          setIsAdmin(true);
-          navigate('/admin');
-        } else {
-          // Redirect regular users to the dashboard page
-          navigate('/dashboard');
-        }
-      }
+      // Navigation will happen based on admin status check in useEffect
+      // Redirect to dashboard by default
+      navigate('/dashboard');
     } catch (error: any) {
       console.error("Exception during sign in:", error);
       toast({
@@ -143,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: error?.message || "Terjadi kesalahan saat login",
         variant: "destructive"
       });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -186,8 +183,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+    try {
+      await supabase.auth.signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (

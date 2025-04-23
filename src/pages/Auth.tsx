@@ -6,12 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-
-// Hardcoded admin user
-const ADMIN_USER = {
-  email: 'admin@formadika.com',
-  password: 'Admin1234'
-};
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -19,6 +14,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,28 +31,11 @@ export default function Auth() {
     setIsLoading(true);
     
     try {
-      // Check if trying to login as admin
-      if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
-        console.log("Admin login successful");
-        toast({
-          title: "Login Berhasil",
-          description: "Selamat datang, Admin!",
-        });
-        navigate('/dashboard');
-      } else {
-        toast({
-          title: "Login Gagal",
-          description: "Email atau password salah",
-          variant: "destructive"
-        });
-      }
+      await signIn(email, password);
+      // Note: Navigation is handled in the AuthContext after successful login
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.message || "Login gagal",
-        variant: "destructive"
-      });
       console.error("Authentication error:", error);
+      // The toast for failed login is shown in the AuthContext
     } finally {
       setIsLoading(false);
     }
