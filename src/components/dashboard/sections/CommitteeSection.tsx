@@ -15,6 +15,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CommitteeForm } from "./committee/CommitteeForm";
