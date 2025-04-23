@@ -55,8 +55,8 @@ export default function Auth() {
       // Check if trying to login as admin
       if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
         console.log("Admin login successful");
-        // Use the existing auth context, but with hardcoded admin
-        await signIn(email, password);
+        // For hardcoded admin, we'll bypass the actual auth system
+        // and directly redirect to dashboard
         toast({
           title: "Login Berhasil",
           description: "Selamat datang, Admin!",
