@@ -67,9 +67,14 @@ export default function Admin() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <Button variant="outline" onClick={signOut}>
-            Sign Out
-          </Button>
+          <div className="flex gap-4">
+            <Button variant="outline" asChild>
+              <a href="/admin-registration">Daftar Admin Baru</a>
+            </Button>
+            <Button variant="outline" onClick={signOut}>
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
       <AdminDashboard />
