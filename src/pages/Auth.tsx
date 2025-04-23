@@ -9,6 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 
+// Hardcoded admin user
+const ADMIN_USER = {
+  email: 'admin@formadika.com',
+  password: 'Admin1234'
+};
+
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,34 +31,19 @@ export default function Auth() {
         console.log("Redirecting admin to admin page");
         navigate('/admin');
       } else {
-        // If not admin, redirect to home
         console.log("Redirecting user to home");
         navigate('/');
       }
     }
   }, [user, isAdmin, navigate]);
 
-  const isValidEmail = (email: string) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isValidEmail(email)) {
+    if (!email || !password) {
       toast({
-        title: "Format Email Salah",
-        description: "Masukkan alamat email yang valid",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (password.length < 6) {
-      toast({
-        title: "Password Terlalu Pendek",
-        description: "Password harus minimal 6 karakter",
+        title: "Error",
+        description: "Email dan password harus diisi",
         variant: "destructive"
       });
       return;
@@ -61,21 +52,27 @@ export default function Auth() {
     setIsLoading(true);
     
     try {
-      if (isSignUp) {
-        await signUp(email, password);
-        toast({
-          title: "Berhasil",
-          description: "Akun admin berhasil dibuat. Silakan masuk.",
-          variant: "default"
-        });
-        setIsSignUp(false);
-      } else {
+      // Check if trying to login as admin
+      if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
+        console.log("Admin login successful");
+        // Use the existing auth context, but with hardcoded admin
         await signIn(email, password);
+        toast({
+          title: "Login Berhasil",
+          description: "Selamat datang, Admin!",
+        });
+        navigate('/dashboard');
+      } else {
+        toast({
+          title: "Login Gagal",
+          description: "Email atau password salah",
+          variant: "destructive"
+        });
       }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error?.message || (isSignUp ? "Gagal membuat akun" : "Login gagal"),
+        description: error?.message || "Login gagal",
         variant: "destructive"
       });
       console.error("Authentication error:", error);
@@ -99,9 +96,9 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isSignUp ? "Buat Akun Admin" : "Login Admin"}</CardTitle>
+          <CardTitle>Login Admin</CardTitle>
           <CardDescription>
-            {isSignUp ? "Daftar untuk menjadi admin" : "Masuk ke akun admin Anda"}
+            Masuk ke akun admin Anda
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -127,23 +124,10 @@ export default function Auth() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {isSignUp && <p className="text-xs text-muted-foreground mt-1">Password minimal 6 karakter</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Memproses..." : (isSignUp ? "Daftar" : "Masuk")}
+              {isLoading ? "Memproses..." : "Masuk"}
             </Button>
-            <div className="text-center mt-4">
-              <Button 
-                type="button" 
-                variant="link" 
-                onClick={() => setIsSignUp(!isSignUp)}
-                disabled={isLoading}
-              >
-                {isSignUp 
-                  ? "Sudah punya akun? Masuk" 
-                  : "Belum punya akun? Daftar"}
-              </Button>
-            </div>
           </form>
         </CardContent>
       </Card>
