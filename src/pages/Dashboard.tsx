@@ -2,25 +2,32 @@
 import { useState } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardContent from '@/components/dashboard/DashboardContent';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState('overview');
-  const navigate = useNavigate();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const handleSignOut = async (): Promise<void> => {
-    navigate('/auth');
-    return Promise.resolve();
-  };
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
   return (
     <div className="flex min-h-screen h-screen bg-background">
       <DashboardSidebar 
         activeSection={activeSection} 
-        setActiveSection={setActiveSection} 
-        signOut={handleSignOut} 
+        setActiveSection={setActiveSection}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
       />
-      <DashboardContent activeSection={activeSection} />
+      <main className="flex-1 overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-3">
+            <Settings className="w-5 h-5 text-muted-foreground" />
+            <span className="font-medium">Admin Dashboard</span>
+          </div>
+        </div>
+        <DashboardContent activeSection={activeSection} />
+      </main>
     </div>
   );
 }
