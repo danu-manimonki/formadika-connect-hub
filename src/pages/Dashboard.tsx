@@ -2,17 +2,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardContent from '@/components/dashboard/DashboardContent';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
-export default function Admin() {
-  const { user, isAdmin, loading } = useAuth();
+export default function Dashboard() {
+  const { user, isAdmin, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [isChecking, setIsChecking] = useState(true);
+  const [activeSection, setActiveSection] = useState('overview');
 
   useEffect(() => {
-    console.log("Admin page - User:", user?.email);
-    console.log("Admin page - Is admin:", isAdmin);
+    console.log("Dashboard page - User:", user?.email);
+    console.log("Dashboard page - Is admin:", isAdmin);
     
     const checkAccess = async () => {
       if (!loading) {
@@ -37,11 +41,7 @@ export default function Admin() {
             variant: "destructive",
           });
           navigate('/');
-          return;
         }
-        
-        // Redirect to the new Dashboard page
-        navigate('/dashboard');
       }
     };
 
@@ -57,5 +57,12 @@ export default function Admin() {
     );
   }
 
-  return null; // This page will just redirect
+  if (!user || !isAdmin) return null;
+
+  return (
+    <div className="flex min-h-screen h-screen bg-background">
+      <DashboardSidebar activeSection={activeSection} setActiveSection={setActiveSection} signOut={signOut} />
+      <DashboardContent activeSection={activeSection} />
+    </div>
+  );
 }
