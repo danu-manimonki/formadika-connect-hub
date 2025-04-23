@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useCommittee } from "@/hooks/queries/useCommittee";
+import { useCommittee, type CommitteeMember } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,7 +34,7 @@ export default function CommitteeSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<any>(null);
+  const [editingMember, setEditingMember] = useState<CommitteeMember | null>(null);
   const { toast } = useToast();
 
   const {
@@ -48,11 +48,11 @@ export default function CommitteeSection() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const memberData = {
-      name: formData.get("name"),
-      position: formData.get("position"),
-      period: formData.get("period"),
-      university: formData.get("university"),
-      status: formData.get("status"),
+      name: String(formData.get("name") || ""),
+      position: String(formData.get("position") || ""),
+      period: String(formData.get("period") || ""),
+      university: formData.get("university") ? String(formData.get("university")) : null,
+      status: String(formData.get("status") || "active") as 'active' | 'inactive',
     };
 
     try {
@@ -99,7 +99,7 @@ export default function CommitteeSection() {
     }
   };
 
-  const filteredCommittee = committee.filter((item: any) => {
+  const filteredCommittee = committee.filter((item: CommitteeMember) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.position.toLowerCase().includes(searchTerm.toLowerCase());

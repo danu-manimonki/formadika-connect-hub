@@ -1,11 +1,11 @@
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CommitteeMember } from "@/hooks/queries/useCommittee";
 
 interface CommitteeFormProps {
-  editingMember: any;
+  editingMember: CommitteeMember | null;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
 }
 
@@ -44,7 +44,7 @@ export function CommitteeForm({ editingMember, onSubmit }: CommitteeFormProps) {
         <Input
           id="university"
           name="university"
-          defaultValue={editingMember?.university}
+          defaultValue={editingMember?.university || ""}
         />
       </div>
       <div className="space-y-2">

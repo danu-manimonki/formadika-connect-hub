@@ -1,19 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { Edit, Trash2 } from "lucide-react";
+import { CommitteeMember } from "@/hooks/queries/useCommittee";
 
 interface CommitteeTableProps {
   isLoading: boolean;
-  committee: any[];
-  onEdit: (member: any) => void;
+  committee: CommitteeMember[];
+  onEdit: (member: CommitteeMember) => void;
   onDelete: (id: string) => void;
 }
 
@@ -48,7 +42,7 @@ export function CommitteeTable({
 
   return (
     <>
-      {committee.map((member: any) => (
+      {committee.map((member) => (
         <TableRow key={member.id}>
           <TableCell className="font-medium">{member.name}</TableCell>
           <TableCell>{member.position}</TableCell>

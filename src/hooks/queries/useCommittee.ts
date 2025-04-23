@@ -2,19 +2,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface CommitteeMember {
+export interface CommitteeMember {
   id: string;
   name: string;
   position: string;
   period: string;
-  university?: string;
+  university?: string | null;
   status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
 
-interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {}
-interface CommitteeUpdate extends Partial<CommitteeInsert> {
+export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {}
+export interface CommitteeUpdate extends Partial<CommitteeInsert> {
   id: string;
 }
 
@@ -28,7 +28,7 @@ export function useCommittee() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as CommitteeMember[];
   };
 
   const createCommittee = async (newData: CommitteeInsert): Promise<CommitteeMember> => {
@@ -39,7 +39,7 @@ export function useCommittee() {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as CommitteeMember;
   };
 
   const updateCommittee = async ({ id, ...updateData }: CommitteeUpdate): Promise<CommitteeMember> => {
@@ -51,7 +51,7 @@ export function useCommittee() {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as CommitteeMember;
   };
 
   const deleteCommittee = async (id: string): Promise<void> => {
