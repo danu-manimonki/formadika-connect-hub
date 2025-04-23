@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useCommittee, type CommitteeMember } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -43,6 +45,9 @@ export default function CommitteeSection() {
     deleteMutation,
   } = useCommittee();
 
+  console.log("Committee data:", committee);
+  console.log("Loading state:", isLoading);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -54,8 +59,12 @@ export default function CommitteeSection() {
       status: String(formData.get("status") || "active") as 'active' | 'inactive',
     };
 
+    console.log("Submitting member data:", memberData);
+    console.log("Editing member:", editingMember);
+
     try {
       if (editingMember) {
+        console.log("Updating member with ID:", editingMember.id);
         await updateMutation.mutateAsync({
           id: editingMember.id,
           ...memberData,
@@ -65,6 +74,7 @@ export default function CommitteeSection() {
           description: "Data pengurus berhasil diperbarui",
         });
       } else {
+        console.log("Creating new member");
         await createMutation.mutateAsync(memberData);
         toast({
           title: "Berhasil",
@@ -74,6 +84,7 @@ export default function CommitteeSection() {
       setIsAddDialogOpen(false);
       setEditingMember(null);
     } catch (error: any) {
+      console.error("Error submitting form:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -83,6 +94,7 @@ export default function CommitteeSection() {
   };
 
   const handleDelete = async (id: string) => {
+    console.log("Deleting member with ID:", id);
     try {
       await deleteMutation.mutateAsync(id);
       toast({
@@ -90,6 +102,7 @@ export default function CommitteeSection() {
         description: "Data pengurus berhasil dihapus",
       });
     } catch (error: any) {
+      console.error("Error deleting member:", error);
       toast({
         title: "Error",
         description: error.message,
@@ -116,7 +129,10 @@ export default function CommitteeSection() {
             Kelola data struktur pengurus organisasi
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+          setIsAddDialogOpen(open);
+          if (!open) setEditingMember(null);
+        }}>
           <DialogTrigger asChild>
             <Button className="gap-1">
               <Plus className="h-4 w-4" /> Tambah Pengurus
@@ -127,6 +143,12 @@ export default function CommitteeSection() {
               <DialogTitle>
                 {editingMember ? "Edit Pengurus" : "Tambah Pengurus Baru"}
               </DialogTitle>
+              <DialogDescription>
+                {editingMember 
+                  ? "Edit informasi pengurus organisasi" 
+                  : "Tambahkan data pengurus baru ke dalam sistem"
+                }
+              </DialogDescription>
             </DialogHeader>
             <CommitteeForm 
               editingMember={editingMember} 
@@ -168,6 +190,7 @@ export default function CommitteeSection() {
                   isLoading={isLoading}
                   committee={filteredCommittee}
                   onEdit={(member) => {
+                    console.log("Editing member:", member);
                     setEditingMember(member);
                     setIsAddDialogOpen(true);
                   }}
