@@ -37,7 +37,7 @@ export default function Auth() {
     }
   }, [user, isAdmin, navigate]);
 
-  // Toggle admin tools visibility with 5 rapid clicks
+  // Toggle admin tools visibility with double click
   const handleSecretClick = () => {
     setShowAdminTools(!showAdminTools);
   };
@@ -111,30 +111,10 @@ export default function Auth() {
 
     setIsLoading(true);
     try {
-      // Langsung menambahkan role admin menggunakan query
-      const { data: userData } = await supabase
-        .from('auth.users')
-        .select('id')
-        .eq('email', adminEmail)
-        .single();
-
-      if (!userData) {
-        toast({
-          title: "User Tidak Ditemukan",
-          description: `Tidak ada user dengan email ${adminEmail}`,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Insert ke user_roles
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userData.id,
-          role: 'admin'
-        })
-        .select();
+      // Use RPC function to add admin role
+      const { data, error } = await supabase.rpc('add_admin_role', {
+        user_email: adminEmail
+      });
 
       if (error) {
         if (error.code === '23505') { // Duplicate key error
