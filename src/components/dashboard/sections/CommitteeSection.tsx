@@ -1,98 +1,108 @@
 
 import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
+import { useCommittee } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2 
-} from "lucide-react";
-
-// Dummy data for committee members
-const committeeData = [
-  { 
-    id: 1, 
-    name: "Agus Widodo", 
-    position: "Ketua Umum", 
-    period: "2024-2025", 
-    university: "Universitas Gadjah Mada", 
-    status: "active" 
-  },
-  { 
-    id: 2, 
-    name: "Dina Pratiwi", 
-    position: "Sekretaris Umum", 
-    period: "2024-2025", 
-    university: "Universitas Sebelas Maret", 
-    status: "active" 
-  },
-  { 
-    id: 3, 
-    name: "Budi Santoso", 
-    position: "Bendahara Umum", 
-    period: "2024-2025", 
-    university: "Institut Teknologi Bandung", 
-    status: "active" 
-  },
-  { 
-    id: 4, 
-    name: "Rina Wahyuni", 
-    position: "Koordinator Divisi Pendidikan", 
-    period: "2024-2025", 
-    university: "Universitas Diponegoro", 
-    status: "active" 
-  },
-  { 
-    id: 5, 
-    name: "Andi Permana", 
-    position: "Koordinator Divisi Humas", 
-    period: "2024-2025", 
-    university: "Universitas Brawijaya", 
-    status: "active" 
-  },
-  { 
-    id: 6, 
-    name: "Indah Lestari", 
-    position: "Ketua Umum", 
-    period: "2023-2024", 
-    university: "Universitas Indonesia", 
-    status: "inactive" 
-  },
-  { 
-    id: 7, 
-    name: "Rizki Ramadhan", 
-    position: "Sekretaris Umum", 
-    period: "2023-2024", 
-    university: "Institut Seni Indonesia Surakarta", 
-    status: "inactive" 
-  }
-];
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function CommitteeSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  
-  const filteredCommittee = committeeData.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          item.position.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<any>(null);
+  const { toast } = useToast();
+
+  const {
+    query: { data: committee = [], isLoading },
+    createMutation,
+    updateMutation,
+    deleteMutation,
+  } = useCommittee();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const memberData = {
+      name: formData.get("name"),
+      position: formData.get("position"),
+      period: formData.get("period"),
+      university: formData.get("university"),
+      status: formData.get("status"),
+    };
+
+    try {
+      if (editingMember) {
+        await updateMutation.mutateAsync({
+          id: editingMember.id,
+          ...memberData,
+        });
+        toast({
+          title: "Success",
+          description: "Member updated successfully",
+        });
+      } else {
+        await createMutation.mutateAsync(memberData);
+        toast({
+          title: "Success",
+          description: "New member added successfully",
+        });
+      }
+      setIsAddDialogOpen(false);
+      setEditingMember(null);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+      toast({
+        title: "Success",
+        description: "Member deleted successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredCommittee = committee.filter((item: any) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.position.toLowerCase().includes(searchTerm.toLowerCase());
+
     if (filter === "all") return matchesSearch;
     return matchesSearch && item.status === filter;
   });
@@ -106,9 +116,72 @@ export default function CommitteeSection() {
             Kelola data struktur pengurus organisasi
           </p>
         </div>
-        <Button className="gap-1">
-          <Plus className="h-4 w-4" /> Tambah Pengurus
-        </Button>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-1">
+              <Plus className="h-4 w-4" /> Tambah Pengurus
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {editingMember ? "Edit Pengurus" : "Tambah Pengurus Baru"}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nama</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={editingMember?.name}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="position">Jabatan</Label>
+                <Input
+                  id="position"
+                  name="position"
+                  defaultValue={editingMember?.position}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="period">Periode</Label>
+                <Input
+                  id="period"
+                  name="period"
+                  defaultValue={editingMember?.period}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="university">Universitas</Label>
+                <Input
+                  id="university"
+                  name="university"
+                  defaultValue={editingMember?.university}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <select
+                  id="status"
+                  name="status"
+                  className="w-full border rounded-md p-2"
+                  defaultValue={editingMember?.status || "active"}
+                >
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Tidak Aktif</option>
+                </select>
+              </div>
+              <Button type="submit" className="w-full">
+                {editingMember ? "Simpan Perubahan" : "Tambah Pengurus"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
@@ -122,34 +195,34 @@ export default function CommitteeSection() {
           <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-start md:items-center">
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Cari berdasarkan nama atau jabatan..." 
+              <Input
+                placeholder="Cari berdasarkan nama atau jabatan..."
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant={filter === "all" ? "secondary" : "outline"} 
+              <Button
+                variant={filter === "all" ? "secondary" : "outline"}
                 onClick={() => setFilter("all")}
                 size="sm"
               >
                 Semua
               </Button>
-              <Button 
-                variant={filter === "active" ? "secondary" : "outline"} 
+              <Button
+                variant={filter === "active" ? "secondary" : "outline"}
                 onClick={() => setFilter("active")}
                 size="sm"
               >
                 Aktif
               </Button>
-              <Button 
-                variant={filter === "inactive" ? "secondary" : "outline"} 
+              <Button
+                variant={filter === "inactive" ? "secondary" : "outline"}
                 onClick={() => setFilter("inactive")}
                 size="sm"
               >
-                Periode Lalu
+                Tidak Aktif
               </Button>
             </div>
           </div>
@@ -167,35 +240,62 @@ export default function CommitteeSection() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCommittee.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.position}</TableCell>
-                    <TableCell>{item.period}</TableCell>
-                    <TableCell>{item.university}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "active" ? "default" : "outline"}>
-                        {item.status === "active" ? "Aktif" : "Periode Lalu"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-4">
+                      Loading...
                     </TableCell>
                   </TableRow>
-                ))}
-                {filteredCommittee.length === 0 && (
+                ) : filteredCommittee.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-6 text-muted-foreground"
+                    >
                       Tidak ada data pengurus yang sesuai filter
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredCommittee.map((member: any) => (
+                    <TableRow key={member.id}>
+                      <TableCell className="font-medium">{member.name}</TableCell>
+                      <TableCell>{member.position}</TableCell>
+                      <TableCell>{member.period}</TableCell>
+                      <TableCell>{member.university}</TableCell>
+                      <TableCell>
+                        <div
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            member.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {member.status === "active" ? "Aktif" : "Tidak Aktif"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setEditingMember(member);
+                              setIsAddDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(member.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>

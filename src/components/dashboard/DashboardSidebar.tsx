@@ -71,11 +71,14 @@ export default function DashboardSidebar({
     )}>
       <div className="p-4 border-b flex items-center justify-between">
         {!collapsed && (
-          <img 
-            src="/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png" 
-            alt="Formadika Logo" 
-            className="h-8"
-          />
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/fe16e809-d382-4b1a-9388-b91ae309c98a.png" 
+              alt="Formadika Logo" 
+              className="h-8 mr-2"
+            />
+            <span className="text-xl font-bold text-formadika-teal">FORMADIKA</span>
+          </div>
         )}
         <Button
           variant="ghost"
