@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -107,7 +108,7 @@ const Navbar = () => {
                 size="sm" 
                 className="bg-blue-600 hover:bg-blue-700 text-white mr-2"
               >
-                <Link to="/admin">Admin</Link>
+                <Link to="/dashboard">Admin</Link>
               </Button>
             )}
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
@@ -159,7 +160,7 @@ const Navbar = () => {
               </Link>
               {isAdmin && (
                 <Link 
-                  to="/admin" 
+                  to="/dashboard" 
                   className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
                   onClick={() => setIsMenuOpen(false)}
                 >
