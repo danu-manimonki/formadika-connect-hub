@@ -6,32 +6,19 @@ import { toast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        toast({
-          title: "Akses Ditolak",
-          description: "Anda harus login terlebih dahulu",
-          variant: "destructive",
-        });
-        navigate('/auth');
-      } else if (isAdmin) {
-        // Redirect admin users to admin dashboard
-        navigate('/admin');
-      } else {
-        // If not admin, show error and redirect to auth
-        toast({
-          title: "Akses Ditolak",
-          description: "Anda tidak memiliki akses admin",
-          variant: "destructive",
-        });
-        navigate('/auth');
-      }
+    if (!loading && !user) {
+      toast({
+        title: "Akses Ditolak",
+        description: "Anda harus login terlebih dahulu",
+        variant: "destructive",
+      });
+      navigate('/auth');
     }
-  }, [user, isAdmin, navigate, loading]);
+  }, [user, navigate, loading]);
 
   if (loading) {
     return (
@@ -42,5 +29,18 @@ export default function Dashboard() {
     );
   }
 
-  return null;
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+        </div>
+      </header>
+      <main className="container mx-auto px-4 py-6">
+        <p>Welcome to your dashboard!</p>
+      </main>
+    </div>
+  );
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,18 +23,9 @@ export default function Auth() {
   useEffect(() => {
     // Redirect if user is already logged in
     if (user) {
-      if (isAdmin) {
-        navigate('/admin');
-      } else {
-        // If not admin, show error and redirect back to auth
-        toast({
-          title: "Akses Ditolak",
-          description: "Anda tidak memiliki akses admin",
-          variant: "destructive",
-        });
-      }
+      navigate('/dashboard');
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, navigate]);
 
   // Toggle admin tools visibility with double click
   const handleSecretClick = () => {
