@@ -34,12 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('role', 'admin')
           .single();
 
+        if (error) {
+          console.error("Error checking admin status:", error);
+        }
+        
         setIsAdmin(!!data);
       }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -52,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -74,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (error) {
+      console.error("Sign in error:", error);
       toast({
         title: "Login Gagal",
         description: error.message,
@@ -86,12 +93,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    console.log("Attempting signup with:", email);
+    
+    const { error, data } = await supabase.auth.signUp({
       email,
       password
     });
 
     if (error) {
+      console.error("Sign up error:", error);
       toast({
         title: "Pendaftaran Gagal",
         description: error.message,
@@ -100,6 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       throw error;
     }
+    
+    console.log("Signup response:", data);
+    
+    setLoading(false);
+    // Don't auto-login after signup to allow for email verification if enabled
   };
 
   const signOut = async () => {
