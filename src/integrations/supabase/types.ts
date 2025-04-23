@@ -39,6 +39,72 @@ export type Database = {
         }
         Relationships: []
       }
+      committee: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          period: string
+          position: string
+          status: string | null
+          university: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          period: string
+          position: string
+          status?: string | null
+          university?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          period?: string
+          position?: string
+          status?: string | null
+          university?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          created_at: string
+          donation_date: string
+          donor_name: string
+          id: string
+          purpose: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          donation_date?: string
+          donor_name: string
+          id?: string
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          donation_date?: string
+          donor_name?: string
+          id?: string
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -71,6 +137,39 @@ export type Database = {
           image_url?: string | null
           location?: string | null
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          sender_name: string
+          status: string | null
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          sender_name: string
+          status?: string | null
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          sender_name?: string
+          status?: string | null
+          subject?: string
           updated_at?: string
         }
         Relationships: []
