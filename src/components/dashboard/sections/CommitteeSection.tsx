@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCommittee, type CommitteeMember } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { CommitteeForm } from "./committee/CommitteeForm";
 import { CommitteeTable } from "./committee/CommitteeTable";
 import { CommitteeFilters } from "./committee/CommitteeFilters";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function CommitteeSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,6 +39,17 @@ export default function CommitteeSection() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<CommitteeMember | null>(null);
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("Current session:", data.session);
+      console.log("User authenticated:", !!data.session);
+    };
+    
+    checkSession();
+  }, []);
 
   const {
     query: { data: committee = [], isLoading },
@@ -47,9 +60,21 @@ export default function CommitteeSection() {
 
   console.log("Committee data:", committee);
   console.log("Loading state:", isLoading);
+  console.log("Current user:", user);
+  console.log("Is admin:", isAdmin);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to perform this action",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const formData = new FormData(e.currentTarget);
     const memberData = {
       name: String(formData.get("name") || ""),
@@ -94,6 +119,15 @@ export default function CommitteeSection() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to delete committee members",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log("Deleting member with ID:", id);
     try {
       await deleteMutation.mutateAsync(id);
@@ -119,6 +153,21 @@ export default function CommitteeSection() {
     if (filter === "all") return matchesSearch;
     return matchesSearch && item.status === filter;
   });
+  
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>
+              You need to be logged in to access the committee management section
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

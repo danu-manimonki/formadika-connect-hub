@@ -46,8 +46,8 @@ export type Database = {
           name: string
           period: string
           position: string
-          status: string | null
-          university: string | null
+          status: string
+          university: string
           updated_at: string
         }
         Insert: {
@@ -56,8 +56,8 @@ export type Database = {
           name: string
           period: string
           position: string
-          status?: string | null
-          university?: string | null
+          status?: string
+          university: string
           updated_at?: string
         }
         Update: {
@@ -66,8 +66,8 @@ export type Database = {
           name?: string
           period?: string
           position?: string
-          status?: string | null
-          university?: string | null
+          status?: string
+          university?: string
           updated_at?: string
         }
         Relationships: []
