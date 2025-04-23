@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,10 +9,7 @@ import {
   CalendarDays,
   Users,
   BookOpen,
-  MessageSquare,
-  Heart,
-  LogIn,
-  LayoutDashboard
+  Heart
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -67,7 +63,7 @@ const DropdownItem = ({ to, label, icon }: { to: string; label: string; icon?: R
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-sm border-b">
@@ -104,28 +100,16 @@ const Navbar = () => {
           <NavItem to="/contact" label="Kontak" />
           
           <div className="ml-4">
-            <Button 
-              asChild 
-              variant="default" 
-              size="sm" 
-              className="bg-blue-600 hover:bg-blue-700 text-white mr-2"
-            >
-              {user ? (
-                isAdmin ? (
-                  <Link to="/admin" className="flex items-center gap-1">
-                    <LayoutDashboard size={16} className="mr-1" /> Dashboard
-                  </Link>
-                ) : (
-                  <Link to="/dashboard" className="flex items-center gap-1">
-                    <LayoutDashboard size={16} className="mr-1" /> Dashboard
-                  </Link>
-                )
-              ) : (
-                <Link to="/auth" className="flex items-center gap-1">
-                  <LogIn size={16} className="mr-1" /> Login
-                </Link>
-              )}
-            </Button>
+            {isAdmin && (
+              <Button 
+                asChild 
+                variant="default" 
+                size="sm" 
+                className="bg-blue-600 hover:bg-blue-700 text-white mr-2"
+              >
+                <Link to="/admin">Admin</Link>
+              </Button>
+            )}
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
@@ -173,31 +157,13 @@ const Navbar = () => {
               <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
               </Link>
-              {user ? (
-                isAdmin ? (
-                  <Link 
-                    to="/admin" 
-                    className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <LayoutDashboard size={16} /> Dashboard
-                  </Link>
-                ) : (
-                  <Link 
-                    to="/dashboard" 
-                    className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <LayoutDashboard size={16} /> Dashboard
-                  </Link>
-                )
-              ) : (
+              {isAdmin && (
                 <Link 
-                  to="/auth" 
+                  to="/admin" 
                   className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <LogIn size={16} /> Login
+                  Admin
                 </Link>
               )}
               <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">

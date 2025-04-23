@@ -19,24 +19,20 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if user is already logged in
     if (user) {
       console.log("Auth - User already logged in:", user.email);
-      console.log("Auth - User admin status:", isAdmin);
-      
       if (isAdmin) {
         console.log("Redirecting admin to admin page");
         navigate('/admin');
       } else {
-        console.log("Redirecting user to dashboard");
-        navigate('/dashboard');
+        // If not admin, redirect to home
+        console.log("Redirecting user to home");
+        navigate('/');
       }
     }
   }, [user, isAdmin, navigate]);
 
-  // Simple email validation
   const isValidEmail = (email: string) => {
-    // Basic email regex pattern
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
   };
@@ -44,7 +40,6 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate email format
     if (!isValidEmail(email)) {
       toast({
         title: "Format Email Salah",
@@ -54,7 +49,6 @@ export default function Auth() {
       return;
     }
     
-    // Validate password
     if (password.length < 6) {
       toast({
         title: "Password Terlalu Pendek",
@@ -71,10 +65,9 @@ export default function Auth() {
         await signUp(email, password);
         toast({
           title: "Berhasil",
-          description: "Akun berhasil dibuat. Silakan masuk.",
+          description: "Akun admin berhasil dibuat. Silakan masuk.",
           variant: "default"
         });
-        // Switch to login mode after successful registration
         setIsSignUp(false);
       } else {
         await signIn(email, password);
@@ -100,16 +93,15 @@ export default function Auth() {
     );
   }
 
-  // If already logged in, don't render the auth form
   if (user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{isSignUp ? "Buat Akun Baru" : "Selamat Datang"}</CardTitle>
+          <CardTitle>{isSignUp ? "Buat Akun Admin" : "Login Admin"}</CardTitle>
           <CardDescription>
-            {isSignUp ? "Daftar untuk mulai bergabung" : "Masuk ke akun Anda"}
+            {isSignUp ? "Daftar untuk menjadi admin" : "Masuk ke akun admin Anda"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -157,4 +149,4 @@ export default function Auth() {
       </Card>
     </div>
   );
-}
+};

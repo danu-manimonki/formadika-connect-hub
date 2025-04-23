@@ -15,10 +15,8 @@ export default function Admin() {
   useEffect(() => {
     console.log("Admin page - User:", user?.email);
     console.log("Admin page - Is admin:", isAdmin);
-    console.log("Admin page - Loading:", loading);
-
+    
     const checkAccess = async () => {
-      // Only proceed when loading is complete
       if (!loading) {
         setIsChecking(false);
         
@@ -34,13 +32,13 @@ export default function Admin() {
         } 
         
         if (!isAdmin) {
-          console.log("Not admin, redirecting to dashboard");
+          console.log("Not admin, redirecting to home");
           toast({
             title: "Akses Ditolak",
             description: "Anda tidak memiliki akses admin",
             variant: "destructive",
           });
-          navigate('/dashboard');
+          navigate('/');
         }
       }
     };
@@ -64,14 +62,9 @@ export default function Admin() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <div className="flex gap-4">
-            <Button variant="outline" asChild>
-              <a href="/admin-registration">Daftar Admin Baru</a>
-            </Button>
-            <Button variant="outline" onClick={signOut}>
-              Sign Out
-            </Button>
-          </div>
+          <Button variant="outline" onClick={signOut}>
+            Sign Out
+          </Button>
         </div>
       </header>
       <AdminDashboard />
