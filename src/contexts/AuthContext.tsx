@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Anda berhasil masuk ke sistem",
       });
 
-      // After successful login, check if user is admin
+      // After successful login, check if user is admin and redirect accordingly
       const user = await supabase.auth.getUser();
       if (user.data.user) {
         const { data } = await supabase
@@ -121,16 +121,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (data) {
           console.log("User is admin, redirecting to admin page");
+          toast({
+            title: "Akses Admin",
+            description: "Anda memiliki akses admin",
+          });
           navigate('/admin');
         } else {
-          // Non-admin users are not allowed
-          toast({
-            title: "Akses Ditolak",
-            description: "Anda tidak memiliki akses admin",
-            variant: "destructive"
-          });
-          // Sign out non-admin users
-          await supabase.auth.signOut();
+          // Redirect regular users to the dashboard page instead of homepage
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {

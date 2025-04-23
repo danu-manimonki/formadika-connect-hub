@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +8,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -16,21 +16,18 @@ export default function Auth() {
   const { signIn, signUp, user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
-  const [showAdminTools, setShowAdminTools] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Redirect if user is already logged in
     if (user) {
-      navigate('/dashboard');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
-
-  // Toggle admin tools visibility with double click
-  const handleSecretClick = () => {
-    setShowAdminTools(!showAdminTools);
-  };
+  }, [user, isAdmin, navigate]);
 
   // Simple email validation
   const isValidEmail = (email: string) => {
@@ -89,52 +86,6 @@ export default function Auth() {
     }
   };
 
-  const handleMakeAdmin = async () => {
-    if (!adminEmail || !isValidEmail(adminEmail)) {
-      toast({
-        title: "Format Email Salah",
-        description: "Masukkan alamat email yang valid",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Use RPC function to add admin role
-      const { data, error } = await supabase.rpc('add_admin_role', {
-        user_email: adminEmail
-      });
-
-      if (error) {
-        if (error.code === '23505') { // Duplicate key error
-          toast({
-            title: "Informasi",
-            description: `User ${adminEmail} sudah memiliki role admin`,
-            variant: "default"
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: "Berhasil",
-          description: `User ${adminEmail} telah dijadikan admin`,
-          variant: "default"
-        });
-      }
-    } catch (error: any) {
-      console.error("Error making admin:", error);
-      toast({
-        title: "Gagal Menjadikan Admin",
-        description: error.message || "Terjadi kesalahan saat menjadikan user sebagai admin",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -151,7 +102,7 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle onDoubleClick={handleSecretClick}>{isSignUp ? "Buat Akun Baru" : "Selamat Datang"}</CardTitle>
+          <CardTitle>{isSignUp ? "Buat Akun Baru" : "Selamat Datang"}</CardTitle>
           <CardDescription>
             {isSignUp ? "Daftar untuk mulai bergabung" : "Masuk ke akun Anda"}
           </CardDescription>
@@ -197,33 +148,6 @@ export default function Auth() {
               </Button>
             </div>
           </form>
-          
-          {showAdminTools && (
-            <div className="mt-8 pt-8 border-t">
-              <h3 className="text-lg font-medium mb-4">Admin Tools</h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="adminEmail">Email User</Label>
-                  <Input
-                    id="adminEmail"
-                    type="email"
-                    placeholder="Email user yang akan dijadikan admin"
-                    value={adminEmail}
-                    onChange={(e) => setAdminEmail(e.target.value)}
-                  />
-                </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
-                  disabled={isLoading}
-                  onClick={handleMakeAdmin}
-                >
-                  {isLoading ? "Memproses..." : "Jadikan Admin"}
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
