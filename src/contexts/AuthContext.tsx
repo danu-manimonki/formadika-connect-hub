@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
           console.error("Error checking admin status:", error);
+          return;
         }
         
         const hasAdminRole = !!data;
@@ -108,7 +109,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Anda berhasil masuk ke sistem",
       });
 
-      // Navigation is now handled by the onAuthStateChange event
+      // After successful login, check if user is admin and redirect accordingly
+      const user = await supabase.auth.getUser();
+      if (user.data.user) {
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.data.user.id)
+          .eq('role', 'admin')
+          .single();
+
+        if (data) {
+          console.log("User is admin, redirecting to admin page");
+          toast({
+            title: "Akses Admin",
+            description: "Anda memiliki akses admin",
+          });
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      }
     } catch (error: any) {
       console.error("Exception during sign in:", error);
       toast({

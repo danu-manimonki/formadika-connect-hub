@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,8 +11,10 @@ import {
   Users,
   BookOpen,
   MessageSquare,
-  Heart
+  Heart,
+  Settings
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const NavItem = ({ to, label, children, dropdown = false }: { 
   to: string; 
@@ -63,6 +66,7 @@ const DropdownItem = ({ to, label, icon }: { to: string; label: string; icon?: R
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-sm border-b">
@@ -99,6 +103,21 @@ const Navbar = () => {
           <NavItem to="/contact" label="Kontak" />
           
           <div className="ml-4">
+            {user ? (
+              isAdmin ? (
+                <Button asChild variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white mr-2">
+                  <Link to="/admin" className="flex items-center gap-1">
+                    <Settings size={16} className="mr-1" /> Admin
+                  </Link>
+                </Button>
+              ) : null
+            ) : (
+              <Button asChild variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white mr-2">
+                <Link to="/auth" className="flex items-center gap-1">
+                  Login
+                </Link>
+              </Button>
+            )}
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
@@ -146,6 +165,11 @@ const Navbar = () => {
               <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
               </Link>
+              {isAdmin && (
+                <Link to="/admin" className="px-3 py-2 bg-blue-600 text-white rounded" onClick={() => setIsMenuOpen(false)}>
+                  Admin Dashboard
+                </Link>
+              )}
               <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">
                 <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
                   <Heart size={16} className="mr-2" /> Donasi

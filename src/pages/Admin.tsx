@@ -17,7 +17,7 @@ export default function Admin() {
     console.log("Admin page - Is admin:", isAdmin);
     console.log("Admin page - Loading:", loading);
 
-    const checkAccess = () => {
+    const checkAccess = async () => {
       if (!loading) {
         setIsChecking(false);
         
@@ -43,6 +43,13 @@ export default function Admin() {
 
     checkAccess();
   }, [user, isAdmin, navigate, loading]);
+
+  // Add a navbar link to the admin page
+  useEffect(() => {
+    if (user && isAdmin) {
+      console.log("User is admin, should render admin dashboard");
+    }
+  }, [user, isAdmin]);
 
   if (loading || isChecking) {
     return (
