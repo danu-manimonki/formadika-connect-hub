@@ -108,7 +108,7 @@ export function EventList({ events }: EventListProps) {
 
       {/* Edit Event Sheet */}
       <Sheet open={isEditing} onOpenChange={setIsEditing}>
-        <SheetContent>
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px]">
           <SheetHeader>
             <SheetTitle>Edit Event</SheetTitle>
             <SheetDescription>

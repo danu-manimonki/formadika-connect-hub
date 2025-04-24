@@ -5,7 +5,6 @@ import { UseFormReturn } from "react-hook-form";
 import { EventFormData } from "./EventForm.types";
 import { useState, useEffect } from "react";
 import { useEventImages } from "@/hooks/useEventImages";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

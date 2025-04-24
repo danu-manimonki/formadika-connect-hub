@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EventFilters } from "./events/EventFilters";
 import { EventTable } from "./events/EventTable";
-import { EventForm } from "@/components/admin/events/EventForm";
+import { EventForm } from "./events/EventForm";
 
 export default function EventsSection() {
   const [searchTerm, setSearchTerm] = useState("");
