@@ -12,6 +12,8 @@ import { EventBasicInfo } from "./EventBasicInfo";
 import { EventDateTime } from "./EventDateTime";
 import { EventImageUpload } from "./EventImageUpload";
 import { EventTypeDetails } from "./EventTypeDetails";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { eventFormSchema } from "./EventForm.schema";
 
 interface EventFormProps {
   event?: Event;
@@ -23,6 +25,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
   const { handleImageUpload } = useEventImageUpload();
   
   const form = useForm<EventFormData>({
+    resolver: zodResolver(eventFormSchema),
     defaultValues: event || {
       title: '',
       description: '',

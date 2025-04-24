@@ -19,7 +19,7 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           <FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input placeholder="Event title" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -33,7 +33,10 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea {...field} />
+              <Textarea 
+                placeholder="Enter event description"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
