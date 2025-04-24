@@ -1,8 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Edit, Trash2 } from "lucide-react";
 import { CommitteeMember } from "@/hooks/queries/useCommittee";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface CommitteeTableProps {
   isLoading: boolean;
@@ -44,7 +44,15 @@ export function CommitteeTable({
     <>
       {committee.map((member) => (
         <TableRow key={member.id}>
-          <TableCell className="font-medium">{member.name}</TableCell>
+          <TableCell className="font-medium">
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarImage src={member.photo_url || undefined} />
+                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              {member.name}
+            </div>
+          </TableCell>
           <TableCell>{member.position}</TableCell>
           <TableCell>{member.period}</TableCell>
           <TableCell>{member.university}</TableCell>

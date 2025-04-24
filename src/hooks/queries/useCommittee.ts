@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,15 +7,14 @@ export interface CommitteeMember {
   name: string;
   position: string;
   period: string;
-  university: string; // Changed from optional to required to match DB schema
+  university: string;
   status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
 
-// Updated to match the database schema requirements
 export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {
-  university: string; // Explicitly marking as required
+  university: string;
 }
 
 export interface CommitteeUpdate extends Partial<CommitteeInsert> {
@@ -47,8 +45,29 @@ export function useCommittee() {
     return data as CommitteeMember[];
   };
 
-  const createCommittee = async (newData: CommitteeInsert): Promise<CommitteeMember> => {
-    console.log("Creating committee member:", newData);
+  const uploadPhoto = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError, data } = await supabase.storage
+      .from('committee-photos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error("Error uploading photo:", uploadError);
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('committee-photos')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const createCommittee = async ({ data, photo }: { data: CommitteeInsert, photo: File | null }): Promise<CommitteeMember> => {
+    console.log("Creating committee member:", data);
     
     const session = await supabase.auth.getSession();
     if (!session.data.session) {
@@ -61,11 +80,25 @@ export function useCommittee() {
       });
       throw authError;
     }
+
+    let photoUrl = null;
+    if (photo) {
+      try {
+        photoUrl = await uploadPhoto(photo);
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        toast({
+          title: "Error",
+          description: "Failed to upload photo",
+          variant: "destructive",
+        });
+        throw error;
+      }
+    }
     
-    // Fixed: Pass newData directly, not in an array
-    const { data, error } = await supabase
+    const { data: committeeData, error } = await supabase
       .from('committee')
-      .insert(newData)
+      .insert({ ...data, photo_url: photoUrl })
       .select()
       .single();
 
@@ -79,12 +112,20 @@ export function useCommittee() {
       throw error;
     }
     
-    console.log("Committee member created:", data);
-    return data as CommitteeMember;
+    console.log("Committee member created:", committeeData);
+    return committeeData as CommitteeMember;
   };
 
-  const updateCommittee = async ({ id, ...updateData }: CommitteeUpdate): Promise<CommitteeMember> => {
-    console.log("Updating committee member:", id, updateData);
+  const updateCommittee = async ({ 
+    id, 
+    data, 
+    photo 
+  }: { 
+    id: string, 
+    data: Partial<CommitteeInsert>, 
+    photo: File | null 
+  }): Promise<CommitteeMember> => {
+    console.log("Updating committee member:", id, data);
     
     const session = await supabase.auth.getSession();
     if (!session.data.session) {
@@ -97,8 +138,25 @@ export function useCommittee() {
       });
       throw authError;
     }
+
+    let photoUrl = undefined;
+    if (photo) {
+      try {
+        photoUrl = await uploadPhoto(photo);
+      } catch (error) {
+        console.error("Error uploading photo:", error);
+        toast({
+          title: "Error",
+          description: "Failed to upload photo",
+          variant: "destructive",
+        });
+        throw error;
+      }
+    }
     
-    const { data, error } = await supabase
+    const updateData = photo ? { ...data, photo_url: photoUrl } : data;
+    
+    const { data: committeeData, error } = await supabase
       .from('committee')
       .update(updateData)
       .eq('id', id)
@@ -108,15 +166,15 @@ export function useCommittee() {
     if (error) {
       console.error("Error updating committee member:", error);
       toast({
-        title: "Authentication Error",
+        title: "Error",
         description: `Failed to update committee member: ${error.message}`,
         variant: "destructive",
       });
       throw error;
     }
     
-    console.log("Committee member updated:", data);
-    return data as CommitteeMember;
+    console.log("Committee member updated:", committeeData);
+    return committeeData as CommitteeMember;
   };
 
   const deleteCommittee = async (id: string): Promise<void> => {
