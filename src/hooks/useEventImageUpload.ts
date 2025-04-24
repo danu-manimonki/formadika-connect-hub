@@ -4,9 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const useEventImageUpload = () => {
   const handleImageUpload = async (file: File) => {
     try {
+      if (!file) {
+        return null;
+      }
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `events/${fileName}`;
+      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase
         .storage

@@ -55,7 +55,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       };
 
       // Handle image upload if it's a File
-      if (values.image_url && typeof values.image_url !== 'string') {
+      if (values.image_url && values.image_url instanceof File) {
         try {
           const publicUrl = await handleImageUpload(values.image_url);
           supabaseData.image_url = publicUrl;
@@ -64,9 +64,9 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
           toast.error('Failed to upload image');
           return;
         }
-      } else if (values.image_url) {
+      } else if (typeof values.image_url === 'string' && values.image_url) {
         // If it's already a string URL, just use it
-        supabaseData.image_url = values.image_url as string;
+        supabaseData.image_url = values.image_url;
       }
       
       if (event?.id) {

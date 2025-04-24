@@ -32,18 +32,29 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
       const objectUrl = URL.createObjectURL(currentImage);
       setPreviewUrl(objectUrl);
       return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof currentImage === 'string') {
+    } else if (typeof currentImage === 'string' && currentImage) {
       setPreviewUrl(currentImage);
     } else {
       setPreviewUrl(null);
     }
-  }, [form.getValues('image_url')]);
+  }, [form.watch('image_url')]);
+
+  const handleNewImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      form.setValue('image_url', file);
+    }
+  };
+
+  const handleExistingImageSelect = (value: string) => {
+    form.setValue('image_url', value);
+  };
 
   return (
     <FormField
       control={form.control}
       name="image_url"
-      render={({ field: { onChange, value, ...field } }) => (
+      render={({ field }) => (
         <FormItem>
           <FormLabel>Event Image</FormLabel>
           <FormControl>
@@ -71,18 +82,12 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
                 <Input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      onChange(file);
-                    }
-                  }}
-                  {...field}
+                  onChange={handleNewImageUpload}
                 />
               ) : (
                 <Select
-                  onValueChange={(value) => onChange(value)}
-                  value={typeof value === 'string' ? value : ''}
+                  onValueChange={handleExistingImageSelect}
+                  value={typeof field.value === 'string' ? field.value : ''}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select an existing image" />
@@ -116,7 +121,7 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
             </div>
           </FormControl>
           <FormDescription>
-            Upload a new image or select an existing one
+            Upload a new image or select an existing one (optional)
           </FormDescription>
           <FormMessage />
         </FormItem>
