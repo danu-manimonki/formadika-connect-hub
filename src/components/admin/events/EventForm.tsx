@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -16,7 +15,7 @@ interface EventFormProps {
   onSuccess?: () => void;
 }
 
-// Update the type to allow image_url to be a File object as well
+// Update the type to explicitly allow File object
 type EventFormData = Omit<Event, 'id' | 'created_at' | 'updated_at'> & {
   image_url: string | File | null;
 };
@@ -67,10 +66,10 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Submitting form with values:", values);
 
       // Handle image upload if file is selected
-      // Fix the instanceof check by using a type guard first
-      const fileValue = values.image_url;
-      if (fileValue && typeof fileValue !== 'string' && fileValue instanceof File) {
-        const publicUrl = await handleImageUpload(fileValue);
+      // Use a more robust type check
+      if (values.image_url && typeof values.image_url !== 'string') {
+        // TypeScript now knows image_url is not a string
+        const publicUrl = await handleImageUpload(values.image_url as File);
         values.image_url = publicUrl;
       }
       
