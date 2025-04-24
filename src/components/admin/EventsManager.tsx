@@ -14,19 +14,23 @@ import { EventList } from './events/EventList';
 export default function EventsManager() {
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
+      console.log("Fetching events...");
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error("Supabase fetch error:", error);
         toast.error('Failed to fetch events');
         throw error;
       }
 
+      console.log("Events fetched:", data);
+      
       // Cast the data to ensure type compatibility
       return (data || []).map(event => ({
         ...event,
@@ -35,6 +39,11 @@ export default function EventsManager() {
       })) as Event[];
     }
   });
+
+  const handleCreateSuccess = () => {
+    setIsCreating(false);
+    refetch();
+  };
 
   if (isLoading) {
     return (
@@ -68,7 +77,7 @@ export default function EventsManager() {
               </SheetDescription>
             </SheetHeader>
             <div className="mt-4">
-              <EventForm onSuccess={() => setIsCreating(false)} />
+              <EventForm onSuccess={handleCreateSuccess} />
             </div>
           </SheetContent>
         </Sheet>
@@ -79,7 +88,7 @@ export default function EventsManager() {
             No events found. Create your first event!
           </p>
         ) : (
-          <EventList events={events} />
+          <EventList events={events || []} />
         )}
       </CardContent>
     </Card>

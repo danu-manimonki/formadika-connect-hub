@@ -34,28 +34,38 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
   const onSubmit = async (values: EventFormData) => {
     try {
+      console.log("Submitting form with values:", values);
+      
       if (event?.id) {
+        console.log("Updating event with ID:", event.id);
         const { error } = await supabase
           .from('events')
           .update(values)
           .eq('id', event.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase update error:", error);
+          throw error;
+        }
         toast.success('Event updated successfully');
       } else {
+        console.log("Creating new event");
         const { error } = await supabase
           .from('events')
           .insert([values]);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase insert error:", error);
+          throw error;
+        }
         toast.success('Event created successfully');
       }
 
       queryClient.invalidateQueries({ queryKey: ['events'] });
       onSuccess?.();
     } catch (error) {
-      toast.error('Failed to save event');
       console.error('Error saving event:', error);
+      toast.error('Failed to save event');
     }
   };
 
@@ -163,7 +173,12 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
             <FormItem>
               <FormLabel>Maximum Participants</FormLabel>
               <FormControl>
-                <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                <Input 
+                  type="number" 
+                  {...field} 
+                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
+                  value={field.value || 0}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
