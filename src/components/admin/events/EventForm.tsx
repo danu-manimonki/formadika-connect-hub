@@ -43,15 +43,15 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Submitting form with values:", values);
       
       // Create a new object for Supabase that matches what it expects
-      const supabaseData = {
+      const supabaseData: Omit<Event, 'id' | 'created_at' | 'updated_at'> = {
         title: values.title,
         description: values.description,
         date: values.date,
         time: values.time,
         location: values.location,
-        type: values.type,
+        type: values.type as 'online' | 'offline',
         participants: values.participants,
-        image_url: null as string | null  // Initialize as null
+        image_url: null  // Initialize as null
       };
 
       // Handle image upload if it's a File
@@ -75,14 +75,22 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
           .update(supabaseData)
           .eq('id', event.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
         toast.success('Event updated successfully');
       } else {
-        const { error } = await supabase
+        const { error, data } = await supabase
           .from('events')
-          .insert([supabaseData]);
+          .insert([supabaseData])
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Insert error:", error);
+          throw error;
+        }
+        console.log("Created event:", data);
         toast.success('Event created successfully');
       }
 

@@ -10,20 +10,30 @@ export const useEventImageUpload = () => {
       
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
+      
+      // Make sure to use a simpler path structure
       const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase
+      console.log("Uploading file:", { fileName, filePath });
+
+      const { error: uploadError, data } = await supabase
         .storage
         .from('events')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("Upload successful:", data);
 
       const { data: { publicUrl } } = supabase
         .storage
         .from('events')
         .getPublicUrl(filePath);
 
+      console.log("Generated public URL:", publicUrl);
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);

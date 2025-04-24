@@ -89,13 +89,17 @@ export default function EventsSection() {
               Manajemen data kegiatan yang akan atau sudah dilaksanakan
             </CardDescription>
           </div>
-          <Sheet open={isCreating || !!editingEvent} 
+          <Sheet 
+            open={isCreating || !!editingEvent} 
             onOpenChange={(open) => {
               if (!open) {
                 setEditingEvent(null);
+                setIsCreating(false);
+              } else if (!editingEvent) {
+                setIsCreating(open);
               }
-              setIsCreating(open);
-            }}>
+            }}
+          >
             <SheetTrigger asChild>
               <Button className="gap-1">
                 <Plus className="h-4 w-4" /> Tambah Kegiatan
@@ -110,7 +114,7 @@ export default function EventsSection() {
               </SheetHeader>
               <div className="mt-4">
                 <EventForm 
-                  event={editingEvent} 
+                  event={editingEvent || undefined} 
                   onSuccess={handleCreateSuccess}
                 />
               </div>
