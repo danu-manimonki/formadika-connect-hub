@@ -1,7 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, FileText, Users, Image, List, MessageSquare, ContactIcon, DollarSign } from "lucide-react";
-import EventsManager from "../EventsManager";
 import ArticlesManager from "../ArticlesManager";
 import UsersManager from "../UsersManager";
 import GalleryManager from "../GalleryManager";
@@ -10,6 +9,7 @@ import ContactManager from "../ContactManager";
 import DonationManager from "../DonationManager";
 import ForumManager from "../ForumManager";
 import CommitteeManager from "../CommitteeManager";
+import EventsSection from "@/components/dashboard/sections/EventsSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DashboardTabs() {
@@ -58,7 +58,7 @@ export default function DashboardTabs() {
         <CommitteeManager />
       </TabsContent>
       <TabsContent value="events">
-        <EventsManager />
+        <EventsSection />
       </TabsContent>
       <TabsContent value="gallery">
         <GalleryManager />
@@ -84,4 +84,3 @@ export default function DashboardTabs() {
     </Tabs>
   );
 }
-
