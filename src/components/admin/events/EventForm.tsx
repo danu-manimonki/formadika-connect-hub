@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -26,28 +25,26 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       date: '',
       time: '',
       location: '',
+      image_url: null,
       type: 'offline',
-      participants: 0,
-      image_url: null
+      participants: 0
     }
   });
 
   const onSubmit = async (values: EventFormData) => {
     try {
       if (event?.id) {
-        // Using a more generic approach for updates
         const { error } = await supabase
           .from('events')
           .update(values)
-          .eq('id', event.id) as { data: any, error: any };
+          .eq('id', event.id);
 
         if (error) throw error;
         toast.success('Event updated successfully');
       } else {
-        // Using a more generic approach for inserts
         const { error } = await supabase
           .from('events')
-          .insert([values]) as { data: any, error: any };
+          .insert([values]);
 
         if (error) throw error;
         toast.success('Event created successfully');

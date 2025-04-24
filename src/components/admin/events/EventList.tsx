@@ -1,4 +1,3 @@
-
 import { CalendarDays, Edit, Eye, Trash2 } from "lucide-react";
 import { Event } from "@/types/database";
 import { Button } from "@/components/ui/button";

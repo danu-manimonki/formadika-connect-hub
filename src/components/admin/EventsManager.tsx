@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,18 +16,17 @@ export default function EventsManager() {
   const { data: events, isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      // Using a more generic approach that doesn't rely on TypeScript table definitions
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('created_at', { ascending: false }) as { data: Event[] | null, error: any };
+        .order('created_at', { ascending: false });
 
       if (error) {
         toast.error('Failed to fetch events');
         throw error;
       }
 
-      return data as Event[];
+      return data || [];
     }
   });
 
