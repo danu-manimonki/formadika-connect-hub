@@ -43,7 +43,7 @@ export function EventTable({
       {events.map((event) => (
         <TableRow key={event.id}>
           <TableCell className="font-medium">{event.title}</TableCell>
-          <TableCell>{event.date}</TableCell>
+          <TableCell>{formatDate(event.date)}</TableCell>
           <TableCell>{event.time}</TableCell>
           <TableCell>{event.location}</TableCell>
           <TableCell>
