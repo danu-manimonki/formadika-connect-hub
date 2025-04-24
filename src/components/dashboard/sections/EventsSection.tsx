@@ -142,12 +142,12 @@ export default function EventsSection() {
           if (!open) {
             setTimeout(() => {
               setEditingEvent(null);
-            }, 300); // Delay clearing of editing event to prevent UI flicker
+            }, 300);
           }
           setIsSheetOpen(open);
         }}
       >
-        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px]">
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px] overflow-y-auto max-h-screen">
           <SheetHeader>
             <SheetTitle>{editingEvent ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}</SheetTitle>
             <SheetDescription>

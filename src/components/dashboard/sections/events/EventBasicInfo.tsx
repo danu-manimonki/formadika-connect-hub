@@ -128,7 +128,16 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                     </Button>
                   )}
                 </div>
-                {previewUrl && (
+                {field.value && !selectedFile && (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                    <img
+                      src={field.value}
+                      alt="Current event image"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+                {selectedFile && previewUrl && (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                     <img
                       src={previewUrl}
