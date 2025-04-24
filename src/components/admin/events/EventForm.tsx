@@ -9,6 +9,7 @@ import { Event } from "@/types/database";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { ImagePlus } from "lucide-react";
 
 interface EventFormProps {
   event?: Event;
@@ -32,9 +33,41 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
     }
   });
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `events/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('events')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('events')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (values: EventFormData) => {
     try {
       console.log("Submitting form with values:", values);
+
+      // Handle image upload if file is selected
+      if (values.image_url instanceof File) {
+        const publicUrl = await handleImageUpload(values.image_url);
+        values.image_url = publicUrl;
+      }
       
       if (event?.id) {
         console.log("Updating event with ID:", event.id);
@@ -139,6 +172,42 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="image_url"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem>
+              <FormLabel>Event Image</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        onChange(file);
+                      }
+                    }}
+                    {...field}
+                  />
+                  {value && typeof value === 'string' && (
+                    <img 
+                      src={value} 
+                      alt="Event preview" 
+                      className="h-20 w-20 object-cover rounded"
+                    />
+                  )}
+                </div>
+              </FormControl>
+              <FormDescription>
+                Upload an image for the event
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
