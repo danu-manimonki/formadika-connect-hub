@@ -7,7 +7,6 @@ export const eventFormSchema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   location: z.string().min(3, "Location must be at least 3 characters"),
-  image_url: z.union([z.string(), z.instanceof(File), z.null()]).optional(),
   type: z.enum(["online", "offline"]),
   participants: z.number().min(0, "Number of participants must be positive")
 });
