@@ -43,25 +43,25 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Submitting form with values:", values);
       
       // Create a new object for Supabase that matches what it expects
-      const supabaseData: Partial<Event> = {
+      // Use a type that requires all the necessary fields for Supabase
+      const supabaseData = {
         title: values.title,
         description: values.description,
         date: values.date,
         time: values.time,
         location: values.location,
         type: values.type,
-        participants: values.participants
+        participants: values.participants,
+        image_url: null as string | null  // Initialize as null
       };
 
       // Handle image upload if it's a File
       if (values.image_url && typeof values.image_url !== 'string') {
-        const publicUrl = await handleImageUpload(values.image_url as File);
+        const publicUrl = await handleImageUpload(values.image_url);
         supabaseData.image_url = publicUrl;
       } else if (values.image_url) {
         // If it's already a string URL, just use it
-        supabaseData.image_url = values.image_url;
-      } else {
-        supabaseData.image_url = null;
+        supabaseData.image_url = values.image_url as string;
       }
       
       if (event?.id) {
