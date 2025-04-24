@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +19,6 @@ import NotFound from "./pages/NotFound";
 import LogoProcessor from "./pages/LogoProcessor";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import UsersManager from "./components/admin/UsersManager";
 
 const queryClient = new QueryClient();
 
