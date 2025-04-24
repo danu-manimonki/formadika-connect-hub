@@ -1,3 +1,4 @@
+
 import { CalendarDays, Edit, Eye, Trash2 } from "lucide-react";
 import { Event } from "@/types/database";
 import { Button } from "@/components/ui/button";
@@ -20,11 +21,10 @@ export function EventList({ events }: EventListProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      // Using a more generic approach for delete
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', id) as { data: any, error: any };
+        .eq('id', id);
 
       if (error) throw error;
 

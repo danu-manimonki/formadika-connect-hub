@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,12 @@ export default function EventsManager() {
         throw error;
       }
 
-      return data || [];
+      // Cast the data to ensure type compatibility
+      return (data || []).map(event => ({
+        ...event,
+        // Ensure the type field is correctly typed as "online" | "offline"
+        type: event.type as "online" | "offline"
+      })) as Event[];
     }
   });
 
