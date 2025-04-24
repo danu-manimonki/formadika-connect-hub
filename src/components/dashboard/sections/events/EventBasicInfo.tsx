@@ -42,13 +42,17 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
     try {
       const imageUrl = await handleImageUpload(selectedFile);
       if (imageUrl) {
+        console.log("Image uploaded, setting form value to:", imageUrl);
+        
         // Set the image_url in the form
-        form.setValue("image_url", imageUrl);
+        form.setValue("image_url", imageUrl, { 
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true
+        });
+        
         setPreviewUrl(imageUrl);
         setSelectedFile(null);
-        // Trigger validation to update form state
-        form.trigger("image_url");
-        console.log("Image uploaded successfully, form value updated:", imageUrl);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -56,11 +60,13 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
   };
 
   const handleRemoveImage = () => {
-    form.setValue("image_url", "");
+    form.setValue("image_url", "", { 
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true
+    });
     setPreviewUrl(null);
     setSelectedFile(null);
-    // Trigger validation
-    form.trigger("image_url");
     console.log("Image removed, form value cleared");
   };
 
@@ -148,6 +154,7 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                     </Button>
                   )}
                 </div>
+                
                 {/* Preview of uploaded or selected image */}
                 {previewUrl && (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
@@ -167,14 +174,10 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                     </Button>
                   </div>
                 )}
-                {/* Hidden input field to store the image URL */}
-                <input
-                  type="hidden"
-                  name={field.name}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  ref={field.ref}
-                />
+                
+                <div className="text-xs text-muted-foreground">
+                  {field.value ? "✓ Image uploaded and ready to submit" : "No image selected yet"}
+                </div>
               </div>
             </FormControl>
             <FormMessage />

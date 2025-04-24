@@ -67,9 +67,9 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Form submission started with values:", values);
       setIsSubmitting(true);
       
-      // Ensure we have the image_url value from the form
-      const image_url = form.getValues("image_url");
-      console.log("Image URL from form:", image_url);
+      // Log all form values to debug
+      console.log("Complete form data:", form.getValues());
+      console.log("Image URL before submission:", values.image_url);
       
       const supabaseData = {
         title: values.title,
@@ -79,7 +79,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         location: values.location,
         type: values.type,
         participants: values.participants,
-        image_url: image_url // Use the value directly from form.getValues()
+        image_url: values.image_url // Use the value from the form values directly
       };
       
       console.log("Final data to submit:", supabaseData);
