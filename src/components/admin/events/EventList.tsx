@@ -21,10 +21,11 @@ export function EventList({ events }: EventListProps) {
 
   const handleDelete = async (id: string) => {
     try {
+      // Using a more generic approach for delete
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', id);
+        .eq('id', id) as { data: any, error: any };
 
       if (error) throw error;
 

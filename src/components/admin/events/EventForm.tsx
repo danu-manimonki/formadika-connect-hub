@@ -15,9 +15,11 @@ interface EventFormProps {
   onSuccess?: () => void;
 }
 
+type EventFormData = Omit<Event, 'id' | 'created_at' | 'updated_at'>;
+
 export function EventForm({ event, onSuccess }: EventFormProps) {
   const queryClient = useQueryClient();
-  const form = useForm<Omit<Event, 'id' | 'created_at' | 'updated_at'>>({
+  const form = useForm<EventFormData>({
     defaultValues: event || {
       title: '',
       description: '',
@@ -30,20 +32,22 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
     }
   });
 
-  const onSubmit = async (values: Omit<Event, 'id' | 'created_at' | 'updated_at'>) => {
+  const onSubmit = async (values: EventFormData) => {
     try {
       if (event?.id) {
+        // Using a more generic approach for updates
         const { error } = await supabase
           .from('events')
           .update(values)
-          .eq('id', event.id);
+          .eq('id', event.id) as { data: any, error: any };
 
         if (error) throw error;
         toast.success('Event updated successfully');
       } else {
+        // Using a more generic approach for inserts
         const { error } = await supabase
           .from('events')
-          .insert([values]);
+          .insert([values]) as { data: any, error: any };
 
         if (error) throw error;
         toast.success('Event created successfully');

@@ -17,10 +17,11 @@ export default function EventsManager() {
   const { data: events, isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
+      // Using a more generic approach that doesn't rely on TypeScript table definitions
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: Event[] | null, error: any };
 
       if (error) {
         toast.error('Failed to fetch events');
