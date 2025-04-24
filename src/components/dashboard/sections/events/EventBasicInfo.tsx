@@ -4,12 +4,36 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormData } from "./EventForm.types";
+import { Button } from "@/components/ui/button";
+import { useEventImageUpload } from "@/hooks/useEventImageUpload";
+import { useState } from "react";
+import { FileImage } from "lucide-react";
 
 interface EventBasicInfoProps {
   form: UseFormReturn<EventFormData>;
 }
 
 export function EventBasicInfo({ form }: EventBasicInfoProps) {
+  const { handleImageUpload, isUploading } = useEventImageUpload();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    form.getValues("image_url") || null
+  );
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const imageUrl = await handleImageUpload(file);
+      if (imageUrl) {
+        form.setValue("image_url", imageUrl);
+        setPreviewUrl(imageUrl);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
   return (
     <>
       <FormField
@@ -51,6 +75,48 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
             <FormLabel>Location</FormLabel>
             <FormControl>
               <Input placeholder="Event location" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="image_url"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Event Image</FormLabel>
+            <FormControl>
+              <div className="space-y-4">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                  className="hidden"
+                  id="event-image"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabled={isUploading}
+                  onClick={() => document.getElementById("event-image")?.click()}
+                >
+                  <FileImage className="mr-2 h-4 w-4" />
+                  {isUploading ? "Uploading..." : "Upload Image"}
+                </Button>
+                {previewUrl && (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                    <img
+                      src={previewUrl}
+                      alt="Event preview"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

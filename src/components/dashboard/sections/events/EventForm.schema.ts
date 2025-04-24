@@ -8,7 +8,8 @@ export const eventFormSchema = z.object({
   time: z.string().min(1, "Time is required"),
   location: z.string().min(3, "Location must be at least 3 characters"),
   type: z.enum(["online", "offline"]),
-  participants: z.number().min(0, "Number of participants must be positive")
+  participants: z.number().min(0, "Number of participants must be positive"),
+  image_url: z.string().optional()
 });
 
 export type EventFormSchema = z.infer<typeof eventFormSchema>;
