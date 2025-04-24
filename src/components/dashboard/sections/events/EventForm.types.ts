@@ -1,4 +1,5 @@
 
-import { EventFormSchema } from "./EventForm.schema";
+import { z } from "zod";
+import { eventFormSchema } from "./EventForm.schema";
 
-export type EventFormData = EventFormSchema;
+export type EventFormData = z.infer<typeof eventFormSchema>;
