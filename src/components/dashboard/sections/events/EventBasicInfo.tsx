@@ -1,4 +1,3 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,16 +17,27 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     form.getValues("image_url") || null
   );
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Create temporary preview URL
+    const tempPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(tempPreviewUrl);
+    setSelectedFile(file);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
     try {
-      const imageUrl = await handleImageUpload(file);
+      const imageUrl = await handleImageUpload(selectedFile);
       if (imageUrl) {
         form.setValue("image_url", imageUrl);
         setPreviewUrl(imageUrl);
+        setSelectedFile(null);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -97,16 +107,27 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                   className="hidden"
                   id="event-image"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  disabled={isUploading}
-                  onClick={() => document.getElementById("event-image")?.click()}
-                >
-                  <FileImage className="mr-2 h-4 w-4" />
-                  {isUploading ? "Uploading..." : "Upload Image"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => document.getElementById("event-image")?.click()}
+                  >
+                    <FileImage className="mr-2 h-4 w-4" />
+                    Select Image
+                  </Button>
+                  {selectedFile && (
+                    <Button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={handleUpload}
+                      className="flex-1"
+                    >
+                      {isUploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                  )}
+                </div>
                 {previewUrl && (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                     <img
