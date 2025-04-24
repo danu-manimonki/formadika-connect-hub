@@ -32,7 +32,8 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       time: event.time || '',
       location: event.location || '',
       type: event.type as 'online' | 'offline',
-      participants: event.participants || 0
+      participants: event.participants || 0,
+      image_url: event.image_url || ''
     } : {
       title: '',
       description: '',
@@ -40,7 +41,8 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       time: '',
       location: '',
       type: 'offline',
-      participants: 0
+      participants: 0,
+      image_url: ''
     }
   });
 
@@ -57,6 +59,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         location: values.location,
         type: values.type,
         participants: values.participants,
+        image_url: values.image_url
       };
       
       console.log("Final data to submit:", supabaseData);

@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,7 +6,7 @@ import { UseFormReturn } from "react-hook-form";
 import { EventFormData } from "./EventForm.types";
 import { Button } from "@/components/ui/button";
 import { useEventImageUpload } from "@/hooks/useEventImageUpload";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileImage } from "lucide-react";
 
 interface EventBasicInfoProps {
@@ -14,10 +15,16 @@ interface EventBasicInfoProps {
 
 export function EventBasicInfo({ form }: EventBasicInfoProps) {
   const { handleImageUpload, isUploading } = useEventImageUpload();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    form.getValues("image_url") || null
-  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Initialize preview with existing image_url if available
+  useEffect(() => {
+    const currentImageUrl = form.getValues("image_url");
+    if (currentImageUrl) {
+      setPreviewUrl(currentImageUrl);
+    }
+  }, [form]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +45,8 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
         form.setValue("image_url", imageUrl);
         setPreviewUrl(imageUrl);
         setSelectedFile(null);
+        // Trigger validation to update form state
+        form.trigger("image_url");
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -128,24 +137,39 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                     </Button>
                   )}
                 </div>
-                {field.value && !selectedFile && (
-                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-                    <img
-                      src={field.value}
-                      alt="Current event image"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
-                {selectedFile && previewUrl && (
+                {/* Preview of uploaded or selected image */}
+                {previewUrl && (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                     <img
                       src={previewUrl}
                       alt="Event preview"
                       className="h-full w-full object-cover"
                     />
+                    {field.value && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2 bg-opacity-70"
+                        onClick={() => {
+                          form.setValue("image_url", "");
+                          setPreviewUrl(null);
+                          setSelectedFile(null);
+                          // Trigger validation
+                          form.trigger("image_url");
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    )}
                   </div>
                 )}
+                <input
+                  type="hidden"
+                  name={field.name}
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                />
               </div>
             </FormControl>
             <FormMessage />
