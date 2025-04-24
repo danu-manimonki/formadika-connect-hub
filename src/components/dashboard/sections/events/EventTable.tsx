@@ -21,7 +21,7 @@ export function EventTable({
   if (isLoading) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="text-center py-4">
+        <TableCell colSpan={7} className="text-center py-4">
           Loading...
         </TableCell>
       </TableRow>
@@ -31,7 +31,7 @@ export function EventTable({
   if (events.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+        <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
           Tidak ada kegiatan yang sesuai filter
         </TableCell>
       </TableRow>
@@ -42,6 +42,21 @@ export function EventTable({
     <>
       {events.map((event) => (
         <TableRow key={event.id}>
+          <TableCell>
+            {event.image_url ? (
+              <div className="relative h-16 w-24 overflow-hidden rounded-md">
+                <img
+                  src={event.image_url}
+                  alt={event.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="h-16 w-24 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-xs">
+                No Image
+              </div>
+            )}
+          </TableCell>
           <TableCell className="font-medium">{event.title}</TableCell>
           <TableCell>{formatDate(event.date)}</TableCell>
           <TableCell>{event.time}</TableCell>
