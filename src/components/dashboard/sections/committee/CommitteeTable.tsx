@@ -30,10 +30,7 @@ export function CommitteeTable({
   if (committee.length === 0) {
     return (
       <TableRow>
-        <TableCell
-          colSpan={6}
-          className="text-center py-6 text-muted-foreground"
-        >
+        <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
           Tidak ada data pengurus yang sesuai filter
         </TableCell>
       </TableRow>
@@ -46,41 +43,31 @@ export function CommitteeTable({
         <TableRow key={member.id}>
           <TableCell className="font-medium">
             <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage src={member.photo_url || undefined} />
-                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+              <Avatar className="h-8 w-8 rounded-full">
+                <AvatarImage src={member.photo_url || undefined} alt={member.name} />
+                <AvatarFallback>{member.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
-              {member.name}
+              <span>{member.name}</span>
             </div>
           </TableCell>
           <TableCell>{member.position}</TableCell>
           <TableCell>{member.period}</TableCell>
           <TableCell>{member.university}</TableCell>
           <TableCell>
-            <div
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                member.status === "active"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-800"
-              }`}
-            >
+            <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              member.status === "active"
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
+            }`}>
               {member.status === "active" ? "Aktif" : "Tidak Aktif"}
             </div>
           </TableCell>
           <TableCell className="text-right">
             <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onEdit(member)}
-              >
+              <Button variant="ghost" size="icon" onClick={() => onEdit(member)}>
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(member.id)}
-              >
+              <Button variant="ghost" size="icon" onClick={() => onDelete(member.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
