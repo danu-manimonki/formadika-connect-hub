@@ -42,6 +42,20 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           </FormItem>
         )}
       />
+      
+      <FormField
+        control={form.control}
+        name="location"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Location</FormLabel>
+            <FormControl>
+              <Input placeholder="Event location" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 }
