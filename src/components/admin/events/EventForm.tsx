@@ -16,7 +16,10 @@ interface EventFormProps {
   onSuccess?: () => void;
 }
 
-type EventFormData = Omit<Event, 'id' | 'created_at' | 'updated_at'>;
+// Update the type to allow image_url to be a File object as well
+type EventFormData = Omit<Event, 'id' | 'created_at' | 'updated_at'> & {
+  image_url: string | File | null;
+};
 
 export function EventForm({ event, onSuccess }: EventFormProps) {
   const queryClient = useQueryClient();
