@@ -12,7 +12,7 @@ import { EventDateTime } from "./EventDateTime";
 import { EventTypeDetails } from "./EventTypeDetails";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema } from "./EventForm.schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EventFormProps {
   event?: Event;
@@ -46,10 +46,30 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
     }
   });
 
+  // Add effect to update form values when event prop changes
+  useEffect(() => {
+    if (event) {
+      form.reset({
+        title: event.title || '',
+        description: event.description || '',
+        date: event.date || '',
+        time: event.time || '',
+        location: event.location || '',
+        type: event.type as 'online' | 'offline',
+        participants: event.participants || 0,
+        image_url: event.image_url || ''
+      });
+    }
+  }, [event, form]);
+
   const onSubmit = async (values: EventFormData) => {
     try {
       console.log("Form submission started with values:", values);
       setIsSubmitting(true);
+      
+      // Ensure we have the image_url value from the form
+      const image_url = form.getValues("image_url");
+      console.log("Image URL from form:", image_url);
       
       const supabaseData = {
         title: values.title,
@@ -59,7 +79,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         location: values.location,
         type: values.type,
         participants: values.participants,
-        image_url: values.image_url
+        image_url: image_url // Use the value directly from form.getValues()
       };
       
       console.log("Final data to submit:", supabaseData);

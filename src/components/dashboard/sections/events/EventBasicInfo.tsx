@@ -42,15 +42,26 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
     try {
       const imageUrl = await handleImageUpload(selectedFile);
       if (imageUrl) {
+        // Set the image_url in the form
         form.setValue("image_url", imageUrl);
         setPreviewUrl(imageUrl);
         setSelectedFile(null);
         // Trigger validation to update form state
         form.trigger("image_url");
+        console.log("Image uploaded successfully, form value updated:", imageUrl);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
     }
+  };
+
+  const handleRemoveImage = () => {
+    form.setValue("image_url", "");
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    // Trigger validation
+    form.trigger("image_url");
+    console.log("Image removed, form value cleared");
   };
 
   return (
@@ -145,30 +156,24 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                       alt="Event preview"
                       className="h-full w-full object-cover"
                     />
-                    {field.value && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 bg-opacity-70"
-                        onClick={() => {
-                          form.setValue("image_url", "");
-                          setPreviewUrl(null);
-                          setSelectedFile(null);
-                          // Trigger validation
-                          form.trigger("image_url");
-                        }}
-                      >
-                        Remove
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 bg-opacity-70"
+                      onClick={handleRemoveImage}
+                    >
+                      Remove
+                    </Button>
                   </div>
                 )}
+                {/* Hidden input field to store the image URL */}
                 <input
                   type="hidden"
                   name={field.name}
                   value={field.value || ""}
                   onChange={field.onChange}
+                  ref={field.ref}
                 />
               </div>
             </FormControl>

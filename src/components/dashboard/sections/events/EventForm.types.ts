@@ -7,5 +7,5 @@ export interface EventFormData {
   location: string;
   type: 'online' | 'offline';
   participants: number;
-  image_url?: string;
+  image_url: string;
 }
