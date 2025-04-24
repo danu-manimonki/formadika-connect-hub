@@ -55,13 +55,13 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       setIsSubmitting(true);
       
       // Create a new object for Supabase that matches what it expects
-      const supabaseData: Omit<Event, 'id' | 'created_at' | 'updated_at'> = {
+      const supabaseData: Partial<Event> = {
         title: values.title,
         description: values.description,
         date: values.date,
         time: values.time,
         location: values.location,
-        type: values.type as 'online' | 'offline',
+        type: values.type,
         participants: values.participants,
         image_url: null  // Initialize as null
       };
@@ -103,10 +103,9 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         toast.success('Event updated successfully');
       } else {
         console.log("Creating new event");
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from('events')
-          .insert([supabaseData])
-          .select();
+          .insert([supabaseData]);
 
         if (error) {
           console.error("Insert error:", error);
@@ -114,15 +113,21 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
           throw error;
         }
         
-        console.log("Event created successfully:", data);
+        console.log("Event created successfully");
         toast.success('Event created successfully');
       }
 
+      // Invalidate and refresh events data
       queryClient.invalidateQueries({ queryKey: ['events'] });
       
       if (onSuccess) {
         console.log("Calling onSuccess callback");
         onSuccess();
+      }
+      
+      // Reset form after successful submission
+      if (!event) {
+        form.reset();
       }
     } catch (error) {
       console.error('Error saving event:', error);
