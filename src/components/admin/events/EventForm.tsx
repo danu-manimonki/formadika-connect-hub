@@ -14,6 +14,7 @@ import { EventImageUpload } from "./EventImageUpload";
 import { EventTypeDetails } from "./EventTypeDetails";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema } from "./EventForm.schema";
+import { useState } from "react";
 
 interface EventFormProps {
   event?: Event;
@@ -23,6 +24,7 @@ interface EventFormProps {
 export function EventForm({ event, onSuccess }: EventFormProps) {
   const queryClient = useQueryClient();
   const { handleImageUpload } = useEventImageUpload();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
@@ -40,6 +42,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
   const onSubmit = async (values: EventFormData) => {
     try {
+      setIsSubmitting(true);
       console.log("Submitting form with values:", values);
       
       // Create a new object for Supabase that matches what it expects
@@ -57,11 +60,14 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       // Handle image upload if it's a File
       if (values.image_url && values.image_url instanceof File) {
         try {
+          console.log("Uploading image file...");
           const publicUrl = await handleImageUpload(values.image_url);
+          console.log("Image uploaded successfully, URL:", publicUrl);
           supabaseData.image_url = publicUrl;
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError);
           toast.error('Failed to upload image');
+          setIsSubmitting(false);
           return;
         }
       } else if (typeof values.image_url === 'string' && values.image_url) {
@@ -69,7 +75,10 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         supabaseData.image_url = values.image_url;
       }
       
+      console.log("Final data to submit:", supabaseData);
+      
       if (event?.id) {
+        console.log("Updating existing event:", event.id);
         const { error } = await supabase
           .from('events')
           .update(supabaseData)
@@ -77,10 +86,14 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
         if (error) {
           console.error("Update error:", error);
+          toast.error('Failed to update event');
           throw error;
         }
+        
+        console.log("Event updated successfully");
         toast.success('Event updated successfully');
       } else {
+        console.log("Creating new event");
         const { error, data } = await supabase
           .from('events')
           .insert([supabaseData])
@@ -88,17 +101,21 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
         if (error) {
           console.error("Insert error:", error);
+          toast.error('Failed to create event');
           throw error;
         }
-        console.log("Created event:", data);
+        
+        console.log("Event created successfully:", data);
         toast.success('Event created successfully');
       }
 
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      setIsSubmitting(false);
       onSuccess?.();
     } catch (error) {
       console.error('Error saving event:', error);
       toast.error('Failed to save event');
+      setIsSubmitting(false);
     }
   };
 
@@ -110,8 +127,8 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         <EventImageUpload form={form} />
         <EventTypeDetails form={form} />
         
-        <Button type="submit" className="w-full">
-          {event ? 'Update Event' : 'Create Event'}
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
         </Button>
       </form>
     </Form>

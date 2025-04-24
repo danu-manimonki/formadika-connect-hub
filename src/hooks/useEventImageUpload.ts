@@ -5,16 +5,15 @@ export const useEventImageUpload = () => {
   const handleImageUpload = async (file: File) => {
     try {
       if (!file) {
+        console.log("No file provided for upload");
         return null;
       }
       
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      
-      // Make sure to use a simpler path structure
       const filePath = `${fileName}`;
 
-      console.log("Uploading file:", { fileName, filePath });
+      console.log("Starting file upload:", { fileName, filePath });
 
       const { error: uploadError, data } = await supabase
         .storage
