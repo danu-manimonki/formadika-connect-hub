@@ -8,7 +8,7 @@ export const useEventImageUpload = () => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `events/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase
+      const { error: uploadError } = await supabase
         .storage
         .from('events')
         .upload(filePath, file);

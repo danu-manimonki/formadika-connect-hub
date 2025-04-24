@@ -43,7 +43,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Submitting form with values:", values);
       
       // Create a new object for Supabase that matches what it expects
-      // Use a type that requires all the necessary fields for Supabase
       const supabaseData = {
         title: values.title,
         description: values.description,
@@ -57,8 +56,14 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
       // Handle image upload if it's a File
       if (values.image_url && typeof values.image_url !== 'string') {
-        const publicUrl = await handleImageUpload(values.image_url);
-        supabaseData.image_url = publicUrl;
+        try {
+          const publicUrl = await handleImageUpload(values.image_url);
+          supabaseData.image_url = publicUrl;
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          toast.error('Failed to upload image');
+          return;
+        }
       } else if (values.image_url) {
         // If it's already a string URL, just use it
         supabaseData.image_url = values.image_url as string;
