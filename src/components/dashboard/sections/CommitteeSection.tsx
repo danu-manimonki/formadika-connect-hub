@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useCommittee, type CommitteeMember } from "@/hooks/queries/useCommittee";
 import { Button } from "@/components/ui/button";
@@ -63,7 +62,7 @@ export default function CommitteeSection() {
   console.log("Current user:", user);
   console.log("Is admin:", isAdmin);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, photo: File | null) => {
     e.preventDefault();
     
     if (!user) {
@@ -80,7 +79,7 @@ export default function CommitteeSection() {
       name: String(formData.get("name") || ""),
       position: String(formData.get("position") || ""),
       period: String(formData.get("period") || ""),
-      university: formData.get("university") ? String(formData.get("university")) : null,
+      university: String(formData.get("university") || ""),
       status: String(formData.get("status") || "active") as 'active' | 'inactive',
     };
 
@@ -92,7 +91,8 @@ export default function CommitteeSection() {
         console.log("Updating member with ID:", editingMember.id);
         await updateMutation.mutateAsync({
           id: editingMember.id,
-          ...memberData,
+          data: memberData,
+          photo
         });
         toast({
           title: "Berhasil",
@@ -100,7 +100,10 @@ export default function CommitteeSection() {
         });
       } else {
         console.log("Creating new member");
-        await createMutation.mutateAsync(memberData);
+        await createMutation.mutateAsync({
+          data: memberData,
+          photo
+        });
         toast({
           title: "Berhasil",
           description: "Pengurus baru berhasil ditambahkan",

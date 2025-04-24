@@ -9,11 +9,12 @@ export interface CommitteeMember {
   period: string;
   university: string;
   status: 'active' | 'inactive';
+  photo_url: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at'> {
+export interface CommitteeInsert extends Omit<CommitteeMember, 'id' | 'created_at' | 'updated_at' | 'photo_url'> {
   university: string;
 }
 
