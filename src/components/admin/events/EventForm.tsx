@@ -23,12 +23,21 @@ interface EventFormProps {
 
 export function EventForm({ event, onSuccess }: EventFormProps) {
   const queryClient = useQueryClient();
-  const { handleImageUpload } = useEventImageUpload();
+  const { handleImageUpload, isUploading } = useEventImageUpload();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: event || {
+    defaultValues: event ? {
+      title: event.title || '',
+      description: event.description || '',
+      date: event.date || '',
+      time: event.time || '',
+      location: event.location || '',
+      image_url: event.image_url || null,
+      type: event.type as 'online' | 'offline',
+      participants: event.participants || 0
+    } : {
       title: '',
       description: '',
       date: '',
@@ -42,8 +51,8 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
 
   const onSubmit = async (values: EventFormData) => {
     try {
+      console.log("Form submission started with values:", values);
       setIsSubmitting(true);
-      console.log("Submitting form with values:", values);
       
       // Create a new object for Supabase that matches what it expects
       const supabaseData: Omit<Event, 'id' | 'created_at' | 'updated_at'> = {
@@ -110,11 +119,15 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       }
 
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      setIsSubmitting(false);
-      onSuccess?.();
+      
+      if (onSuccess) {
+        console.log("Calling onSuccess callback");
+        onSuccess();
+      }
     } catch (error) {
       console.error('Error saving event:', error);
       toast.error('Failed to save event');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -127,8 +140,12 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         <EventImageUpload form={form} />
         <EventTypeDetails form={form} />
         
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isSubmitting || isUploading}
+        >
+          {(isSubmitting || isUploading) ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
         </Button>
       </form>
     </Form>
