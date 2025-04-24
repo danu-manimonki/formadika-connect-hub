@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -54,8 +53,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Form submission started with values:", values);
       setIsSubmitting(true);
       
-      // Create a new object for Supabase that matches what it expects
-      // Here we ensure that the required fields are included and not optional
       const supabaseData = {
         title: values.title,
         description: values.description,
@@ -64,10 +61,9 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         location: values.location,
         type: values.type,
         participants: values.participants,
-        image_url: null as string | null // Initialize as null
+        image_url: null as string | null
       };
 
-      // Handle image upload if it's a File
       if (values.image_url && values.image_url instanceof File) {
         try {
           console.log("Uploading image file...");
@@ -81,14 +77,12 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
           return;
         }
       } else if (typeof values.image_url === 'string' && values.image_url) {
-        // If it's already a string URL, just use it
         supabaseData.image_url = values.image_url;
       }
       
       console.log("Final data to submit:", supabaseData);
       
       if (event?.id) {
-        console.log("Updating existing event:", event.id);
         const { error } = await supabase
           .from('events')
           .update(supabaseData)
@@ -103,8 +97,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         console.log("Event updated successfully");
         toast.success('Event updated successfully');
       } else {
-        console.log("Creating new event");
-        // For insert, we need to use an array to satisfy Supabase's API
         const { error } = await supabase
           .from('events')
           .insert(supabaseData);
@@ -119,7 +111,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         toast.success('Event created successfully');
       }
 
-      // Invalidate and refresh events data
       queryClient.invalidateQueries({ queryKey: ['events'] });
       
       if (onSuccess) {
@@ -127,7 +118,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         onSuccess();
       }
       
-      // Reset form after successful submission
       if (!event) {
         form.reset();
       }
