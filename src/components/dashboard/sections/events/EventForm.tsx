@@ -55,7 +55,8 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       setIsSubmitting(true);
       
       // Create a new object for Supabase that matches what it expects
-      const supabaseData: Partial<Event> = {
+      // Here we ensure that the required fields are included and not optional
+      const supabaseData = {
         title: values.title,
         description: values.description,
         date: values.date,
@@ -63,7 +64,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         location: values.location,
         type: values.type,
         participants: values.participants,
-        image_url: null  // Initialize as null
+        image_url: null as string | null // Initialize as null
       };
 
       // Handle image upload if it's a File
@@ -103,9 +104,10 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         toast.success('Event updated successfully');
       } else {
         console.log("Creating new event");
+        // For insert, we need to use an array to satisfy Supabase's API
         const { error } = await supabase
           .from('events')
-          .insert([supabaseData]);
+          .insert(supabaseData);
 
         if (error) {
           console.error("Insert error:", error);
