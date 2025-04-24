@@ -147,7 +147,7 @@ export default function EventsSection() {
           setIsSheetOpen(open);
         }}
       >
-        <SheetContent size="lg">
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px]">
           <SheetHeader>
             <SheetTitle>{editingEvent ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}</SheetTitle>
             <SheetDescription>
