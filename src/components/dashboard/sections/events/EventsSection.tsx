@@ -5,26 +5,55 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Event } from "@/types/database";
 import { supabase } from "@/integrations/supabase/client";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useQuery } from "@tanstack/react-query";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EventFilters } from "./EventFilters";
 import { EventTable } from "./EventTable";
-import { EventForm } from "@/components/admin/events/EventForm";
-import { useEventsQuery } from "@/hooks/queries/events/useEventsQuery";
+import { EventForm } from "./EventForm";
 
 export default function EventsSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-  const { data: events, isLoading, refetch } = useEventsQuery();
+  const { data: events, isLoading, refetch } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      console.log("Fetching events...");
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Supabase fetch error:", error);
+        toast.error('Failed to fetch events');
+        throw error;
+      }
+
+      console.log("Events fetched:", data);
+      
+      return data as Event[];
+    }
+  });
 
   const handleCreateSuccess = () => {
-    setIsCreating(false);
+    console.log("Event creation/update success callback triggered");
+    setIsSheetOpen(false);
     setEditingEvent(null);
     refetch();
+  };
+
+  const handleOpenSheet = (event?: Event) => {
+    if (event) {
+      setEditingEvent(event);
+    } else {
+      setEditingEvent(null);
+    }
+    setIsSheetOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -70,34 +99,9 @@ export default function EventsSection() {
               Manajemen data kegiatan yang akan atau sudah dilaksanakan
             </CardDescription>
           </div>
-          <Sheet 
-            open={isCreating || !!editingEvent} 
-            onOpenChange={(open) => {
-              if (!open) {
-                setEditingEvent(null);
-              }
-              setIsCreating(open);
-            }}>
-            <SheetTrigger asChild>
-              <Button className="gap-1">
-                <Plus className="h-4 w-4" /> Tambah Kegiatan
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>{editingEvent ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}</SheetTitle>
-                <SheetDescription>
-                  {editingEvent ? "Edit informasi kegiatan" : "Tambahkan data kegiatan baru"}
-                </SheetDescription>
-              </SheetHeader>
-              <div className="mt-4">
-                <EventForm 
-                  event={editingEvent} 
-                  onSuccess={handleCreateSuccess}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <Button className="gap-1" onClick={() => handleOpenSheet()}>
+            <Plus className="h-4 w-4" /> Tambah Kegiatan
+          </Button>
         </CardHeader>
         <CardContent>
           <EventFilters
@@ -123,7 +127,7 @@ export default function EventsSection() {
                 <EventTable
                   isLoading={isLoading}
                   events={filteredEvents}
-                  onEdit={setEditingEvent}
+                  onEdit={handleOpenSheet}
                   onDelete={handleDelete}
                 />
               </TableBody>
@@ -131,6 +135,33 @@ export default function EventsSection() {
           </div>
         </CardContent>
       </Card>
+
+      <Sheet 
+        open={isSheetOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setTimeout(() => {
+              setEditingEvent(null);
+            }, 300); // Delay clearing of editing event to prevent UI flicker
+          }
+          setIsSheetOpen(open);
+        }}
+      >
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px]">
+          <SheetHeader>
+            <SheetTitle>{editingEvent ? "Edit Kegiatan" : "Tambah Kegiatan Baru"}</SheetTitle>
+            <SheetDescription>
+              {editingEvent ? "Edit informasi kegiatan" : "Tambahkan data kegiatan baru"}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <EventForm 
+              event={editingEvent || undefined} 
+              onSuccess={handleCreateSuccess}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
