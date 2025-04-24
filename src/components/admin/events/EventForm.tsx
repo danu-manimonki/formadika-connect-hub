@@ -67,8 +67,10 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       console.log("Submitting form with values:", values);
 
       // Handle image upload if file is selected
-      if (values.image_url instanceof File) {
-        const publicUrl = await handleImageUpload(values.image_url);
+      // Fix the instanceof check by using a type guard first
+      const fileValue = values.image_url;
+      if (fileValue && typeof fileValue !== 'string' && fileValue instanceof File) {
+        const publicUrl = await handleImageUpload(fileValue);
         values.image_url = publicUrl;
       }
       
