@@ -15,16 +15,26 @@ export const useEventImageUpload = () => {
         return null;
       }
       
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("File size exceeds 5MB limit");
+      }
+
+      // Get file extension and generate a unique name
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       console.log("Starting file upload:", { fileName, filePath });
 
+      // Upload file to Supabase storage
       const { error: uploadError, data } = await supabase
         .storage
         .from('events')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error("Storage upload error:", uploadError);
@@ -34,6 +44,7 @@ export const useEventImageUpload = () => {
 
       console.log("Upload successful:", data);
 
+      // Get public URL
       const { data: { publicUrl } } = supabase
         .storage
         .from('events')
@@ -43,7 +54,8 @@ export const useEventImageUpload = () => {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error("Error uploading image");
+      const errorMessage = error instanceof Error ? error.message : "Error uploading image";
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsUploading(false);

@@ -25,7 +25,7 @@ export const useEventImages = () => {
       // Filter out null values and get unique URLs
       const uniqueImages = [...new Set(events
         .map(event => event.image_url)
-        .filter(url => url) as string[])];
+        .filter(url => url && typeof url === 'string') as string[])];
 
       console.log("Fetched unique images:", uniqueImages);
       return uniqueImages;

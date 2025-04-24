@@ -8,6 +8,7 @@ import { useEventImages } from "@/hooks/useEventImages";
 import { Button } from "@/components/ui/button";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface EventImageUploadProps {
   form: UseFormReturn<EventFormData>;
@@ -29,7 +30,14 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
       setPreviewUrl(objectUrl);
       return () => URL.revokeObjectURL(objectUrl);
     } else if (typeof currentImage === 'string' && currentImage) {
-      setPreviewUrl(currentImage);
+      // Ensure the URL is valid and properly formed
+      try {
+        const url = new URL(currentImage);
+        setPreviewUrl(currentImage);
+      } catch (e) {
+        console.error("Invalid URL format:", currentImage);
+        setPreviewUrl(null);
+      }
     } else {
       setPreviewUrl(null);
     }
@@ -38,6 +46,18 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
   const handleNewImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image file is too large. Please select an image under 5MB.");
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select a valid image file.");
+        return;
+      }
+      
       form.setValue('image_url', file, { shouldValidate: true });
     }
   };
@@ -48,8 +68,13 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
   };
 
   const loadExistingImages = async () => {
-    const images = await getExistingImages();
-    setExistingImages(images);
+    try {
+      const images = await getExistingImages();
+      setExistingImages(images);
+    } catch (error) {
+      console.error("Error loading existing images:", error);
+      toast.error("Failed to load existing images");
+    }
   };
 
   return (
@@ -107,7 +132,18 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
                               }`}
                               onClick={() => handleExistingImageSelect(url)}
                             >
-                              <img src={url} alt={`Event image ${index}`} className="h-32 w-full object-cover" />
+                              <div className="h-32 w-full flex items-center justify-center bg-gray-100">
+                                <img 
+                                  src={url} 
+                                  alt={`Event image ${index}`} 
+                                  className="max-h-32 max-w-full object-cover"
+                                  onError={(e) => {
+                                    console.error(`Failed to load image: ${url}`);
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = 'https://placehold.co/400x300?text=Image+Error';
+                                  }}
+                                />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -132,6 +168,11 @@ export function EventImageUpload({ form }: EventImageUploadProps) {
                     src={previewUrl} 
                     alt="Event preview" 
                     className="h-40 w-full object-cover rounded"
+                    onError={(e) => {
+                      console.error(`Failed to load preview image: ${previewUrl}`);
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://placehold.co/400x300?text=Preview+Error';
+                    }}
                   />
                 </div>
               )}
