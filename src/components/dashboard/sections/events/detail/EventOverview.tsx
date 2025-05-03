@@ -52,6 +52,17 @@ export function EventOverview({ event, onViewRegistrations }: EventOverviewProps
           </div>
         </div>
 
+        {/* Tampilkan gambar event jika tersedia */}
+        {event.image_url && (
+          <div className="mb-6">
+            <img 
+              src={event.image_url} 
+              alt={event.title} 
+              className="w-full rounded-lg object-cover max-h-[300px]"
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="font-semibold mb-2">Detail Event</h3>

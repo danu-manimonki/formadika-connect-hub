@@ -68,6 +68,17 @@ export function EventDetailInfo({
           </div>
         </CardHeader>
         <CardContent>
+          {/* Tampilkan gambar event jika tersedia */}
+          {event.image_url && (
+            <div className="mb-6">
+              <img 
+                src={event.image_url} 
+                alt={event.title} 
+                className="w-full rounded-lg object-cover max-h-[400px]"
+              />
+            </div>
+          )}
+          
           <div 
             className="prose max-w-none mb-8" 
             dangerouslySetInnerHTML={{ __html: event.description }}
@@ -146,8 +157,6 @@ export function EventDetailInfo({
               </Button>
             </div>
           )}
-          
-          {/* Remove references to organizer_info since it doesn't exist in Event type */}
         </CardContent>
       </Card>
     </div>

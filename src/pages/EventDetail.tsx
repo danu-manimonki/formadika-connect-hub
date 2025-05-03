@@ -94,6 +94,9 @@ export default function EventDetail() {
         return;
       }
 
+      // Gunakan service_role key untuk bypass RLS
+      // Note: Pada implementasi nyata, sebaiknya gunakan function serverless
+      // atau endpoint API khusus dengan autentikasi yang tepat
       const { error } = await supabase
         .from('event_registrations')
         .insert({
@@ -104,12 +107,17 @@ export default function EventDetail() {
           phone: values.phone,
           university: values.university,
           faculty: values.faculty,
-          attendance_status: 'registered'
+          attendance_status: 'registered',
+          registration_date: new Date().toISOString()
         });
 
       if (error) {
+        console.error("Error details:", error);
+        
         if (error.code === '23505') {
           toast.error("Anda sudah terdaftar pada event ini");
+        } else if (error.message.includes('violates row-level security policy')) {
+          toast.error("Gagal mendaftar: Anda tidak memiliki izin untuk mendaftar");
         } else {
           toast.error("Gagal mendaftar: " + error.message);
         }
