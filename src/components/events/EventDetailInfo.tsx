@@ -11,6 +11,7 @@ interface EventDetailInfoProps {
   user: any | null;
   eventIsFullyBooked: boolean;
   registrationClosed: boolean;
+  allowGuestRegistration?: boolean;
 }
 
 export function EventDetailInfo({ 
@@ -19,7 +20,8 @@ export function EventDetailInfo({
   onRegister, 
   user, 
   eventIsFullyBooked, 
-  registrationClosed 
+  registrationClosed,
+  allowGuestRegistration = false
 }: EventDetailInfoProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -96,17 +98,17 @@ export function EventDetailInfo({
             </div>
           )}
             
-          {user ? (
-            isRegistered ? (
-              <div className="space-y-4">
-                <div className="p-3 bg-green-50 border border-green-200 text-green-800 rounded-md text-sm">
-                  Anda sudah terdaftar pada kegiatan ini
-                </div>
-                <Button className="w-full" variant="outline">
-                  Lihat Detail Pendaftaran
-                </Button>
+          {user && isRegistered ? (
+            <div className="space-y-4">
+              <div className="p-3 bg-green-50 border border-green-200 text-green-800 rounded-md text-sm">
+                Anda sudah terdaftar pada kegiatan ini
               </div>
-            ) : (
+              <Button className="w-full" variant="outline">
+                Lihat Detail Pendaftaran
+              </Button>
+            </div>
+          ) : (
+            allowGuestRegistration || user ? (
               <Button 
                 className="w-full" 
                 onClick={onRegister}
@@ -118,13 +120,13 @@ export function EventDetailInfo({
                   'Daftar Sekarang'
                 )}
               </Button>
+            ) : (
+              <div className="space-y-4">
+                <Button className="w-full" asChild>
+                  <Link to="/auth">Login untuk Mendaftar</Link>
+                </Button>
+              </div>
             )
-          ) : (
-            <div className="space-y-4">
-              <Button className="w-full" asChild>
-                <Link to="/auth">Login untuk Mendaftar</Link>
-              </Button>
-            </div>
           )}
           
           <div className="mt-4">

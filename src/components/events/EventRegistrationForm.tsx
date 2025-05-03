@@ -11,7 +11,9 @@ import { Event } from "@/types/database";
 const registerSchema = z.object({
   name: z.string().min(3, "Nama harus diisi minimal 3 karakter"),
   email: z.string().email("Email tidak valid"),
-  phone: z.string().optional()
+  phone: z.string().min(1, "Nomor telepon harus diisi"),
+  university: z.string().min(1, "Universitas harus diisi"),
+  faculty: z.string().min(1, "Fakultas/Jurusan harus diisi")
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -36,7 +38,9 @@ export function EventRegistrationForm({
     defaultValues: {
       name: "",
       email: defaultEmail,
-      phone: ""
+      phone: "",
+      university: "",
+      faculty: ""
     }
   });
 
@@ -46,7 +50,7 @@ export function EventRegistrationForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Daftar Kegiatan</DialogTitle>
           <DialogDescription>
@@ -89,7 +93,7 @@ export function EventRegistrationForm({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nomor Telepon (Opsional)</FormLabel>
+                  <FormLabel>Nomor Telepon</FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan nomor telepon Anda" {...field} />
                   </FormControl>
@@ -98,8 +102,36 @@ export function EventRegistrationForm({
               )}
             />
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+            <FormField
+              control={form.control}
+              name="university"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Universitas</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan nama universitas Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="faculty"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fakultas/Jurusan</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan nama fakultas atau jurusan Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={onClose} className="mr-2">
                 Batal
               </Button>
               <Button type="submit">Daftar</Button>

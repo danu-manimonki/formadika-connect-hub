@@ -16,7 +16,9 @@ import { Event } from "@/types/database";
 const registerSchema = z.object({
   name: z.string().min(3, "Nama harus diisi minimal 3 karakter"),
   email: z.string().email("Email tidak valid"),
-  phone: z.string().optional()
+  phone: z.string().min(1, "Nomor telepon harus diisi"),
+  university: z.string().min(1, "Universitas harus diisi"),
+  faculty: z.string().min(1, "Fakultas/Jurusan harus diisi")
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -39,8 +41,6 @@ export default function EventDetail() {
 
       if (error) throw error;
       
-      // Add type assertion to ensure the event conforms to the Event interface
-      // This ensures that `type` is treated as 'online' | 'offline'
       return {
         ...data,
         type: data.type === 'online' ? 'online' : 'offline'
@@ -66,10 +66,31 @@ export default function EventDetail() {
     enabled: !!user?.id && !!id
   });
 
+  // Check if email is already registered (even without login)
+  const checkEmailRegistered = async (email: string): Promise<boolean> => {
+    if (!id) return false;
+    
+    const { data, error } = await supabase
+      .from('event_registrations')
+      .select('id')
+      .eq('event_id', id)
+      .eq('email', email)
+      .single();
+      
+    return error ? false : !!data;
+  };
+
   const handleRegister = async (values: RegisterFormData) => {
     try {
-      if (!id || !user?.id) {
-        toast.error("Anda harus login terlebih dahulu");
+      if (!id) {
+        toast.error("Event tidak valid");
+        return;
+      }
+
+      // Check if email is already registered
+      const isEmailRegistered = await checkEmailRegistered(values.email);
+      if (isEmailRegistered) {
+        toast.error("Email ini sudah terdaftar pada event ini");
         return;
       }
 
@@ -77,10 +98,12 @@ export default function EventDetail() {
         .from('event_registrations')
         .insert({
           event_id: id,
-          user_id: user.id,
+          user_id: user?.id || null,
           name: values.name,
           email: values.email,
-          phone: values.phone || null,
+          phone: values.phone,
+          university: values.university,
+          faculty: values.faculty,
           attendance_status: 'registered'
         });
 
@@ -98,7 +121,9 @@ export default function EventDetail() {
       
       toast.success("Berhasil mendaftar ke event");
       setIsRegistrationOpen(false);
-      refetchRegistration();
+      if (user?.id) {
+        refetchRegistration();
+      }
     } catch (error) {
       console.error("Error registering to event:", error);
     }
@@ -146,6 +171,7 @@ export default function EventDetail() {
           user={user}
           eventIsFullyBooked={eventIsFullyBooked}
           registrationClosed={registrationClosed}
+          allowGuestRegistration={true}
         />
       </div>
 
