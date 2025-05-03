@@ -352,7 +352,7 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Tulis deskripsi
             placement: 'bottom',
             hideOnClick: true,
           }}
-          shouldShow={({ editor, view, state, from, to }) => {
+          shouldShow={({ editor, from }) => {
             const node = editor.view.nodeDOM(from) as HTMLElement
             if (node && node.classList.contains('citation')) {
               return true
