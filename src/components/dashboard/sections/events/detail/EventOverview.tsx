@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock, Mail, MapPin, Users, Wifi, WifiOff } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Wifi, WifiOff } from "lucide-react";
 import { Event } from "@/types/database";
 
 interface EventOverviewProps {
@@ -80,7 +80,10 @@ export function EventOverview({ event, onViewRegistrations }: EventOverviewProps
 
           <div>
             <h3 className="font-semibold mb-2">Tentang Event</h3>
-            <p className="text-sm">{event.description}</p>
+            <div 
+              className="text-sm prose prose-sm max-w-none" 
+              dangerouslySetInnerHTML={{ __html: event.description }}
+            />
           </div>
         </div>
       </CardContent>

@@ -1,14 +1,16 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Users, Share2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, Clock, MapPin, Users, Wifi, WifiOff } from "lucide-react";
+import { AuthUser } from "@/types/database";
 import { Event } from "@/types/database";
-import { Link } from "react-router-dom";
+import { Badge } from "../ui/badge";
 
 interface EventDetailInfoProps {
   event: Event;
   isRegistered: boolean;
   onRegister: () => void;
-  user: any | null;
+  user: AuthUser | null;
   eventIsFullyBooked: boolean;
   registrationClosed: boolean;
   allowGuestRegistration?: boolean;
@@ -19,123 +21,134 @@ export function EventDetailInfo({
   isRegistered, 
   onRegister, 
   user, 
-  eventIsFullyBooked, 
+  eventIsFullyBooked,
   registrationClosed,
   allowGuestRegistration = false
 }: EventDetailInfoProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2">
-        {event.image_url && (
-          <div className="rounded-lg overflow-hidden mb-8">
-            <img
-              src={event.image_url}
-              alt={event.title}
-              className="w-full h-auto"
-            />
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-2xl mb-1">{event.title}</CardTitle>
+              <div className="flex gap-2 mt-1">
+                <Badge variant={event.type === 'online' ? 'secondary' : 'default'} className="gap-1.5">
+                  {event.type === 'online' ? (
+                    <><Wifi className="h-3 w-3" /> Online</>
+                  ) : (
+                    <><WifiOff className="h-3 w-3" /> Offline</>
+                  )}
+                </Badge>
+                {event.status === 'ongoing' && (
+                  <Badge variant="default" className="bg-green-100 text-green-800">
+                    Sedang Berlangsung
+                  </Badge>
+                )}
+                {event.status === 'upcoming' && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                    Akan Datang
+                  </Badge>
+                )}
+                {event.status === 'completed' && (
+                  <Badge variant="outline" className="bg-gray-100 text-gray-800">
+                    Selesai
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-        
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Tentang Kegiatan</h2>
-          <p className="whitespace-pre-line">{event.description}</p>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent>
+          <div 
+            className="prose max-w-none mb-8" 
+            dangerouslySetInnerHTML={{ __html: event.description }}
+          />
 
-      <div>
-        <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-          <h3 className="text-lg font-semibold mb-4">Informasi Event</h3>
-          
-          <div className="space-y-4 mb-6">
-            <div className="flex items-start">
-              <Calendar className="w-5 h-5 mr-3 text-formadika-600 mt-0.5" />
-              <div>
-                <div className="font-medium">Tanggal</div>
-                <div className="text-gray-600">{event.date}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <Clock className="w-5 h-5 mr-3 text-formadika-600 mt-0.5" />
-              <div>
-                <div className="font-medium">Waktu</div>
-                <div className="text-gray-600">{event.time}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <MapPin className="w-5 h-5 mr-3 text-formadika-600 mt-0.5" />
-              <div>
-                <div className="font-medium">Lokasi</div>
-                <div className="text-gray-600">{event.location}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <Users className="w-5 h-5 mr-3 text-formadika-600 mt-0.5" />
-              <div>
-                <div className="font-medium">Peserta</div>
-                <div className="text-gray-600">
-                  {event.registered_participants || 0} terdaftar
-                  {event.max_participants ? ` dari ${event.max_participants}` : ''}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Informasi Acara</h3>
+              <div className="space-y-3">
+                <div className="flex items-center text-gray-600">
+                  <Calendar className="h-5 w-5 mr-3 text-formadika-600" />
+                  <span>{event.date}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <Clock className="h-5 w-5 mr-3 text-formadika-600" />
+                  <span>{event.time}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <MapPin className="h-5 w-5 mr-3 text-formadika-600" />
+                  <span>{event.location}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <Users className="h-5 w-5 mr-3 text-formadika-600" />
+                  <span>
+                    {event.registered_participants || 0} pendaftar 
+                    {event.max_participants ? ` (Kuota: ${event.max_participants})` : ''}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {event.max_participants && (
-            <div className="mb-6">
-              <div className="flex justify-between text-sm mb-1">
-                <span>Kapasitas</span>
-                <span>{event.registered_participants || 0}/{event.max_participants}</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-formadika-600 h-2.5 rounded-full" 
-                  style={{ width: `${Math.min(((event.registered_participants || 0) / event.max_participants) * 100, 100)}%` }}
-                ></div>
-              </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Pendaftaran</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {registrationClosed ? (
+            <div className="text-center py-4">
+              {event.status === 'completed' ? (
+                <p className="text-gray-600">Event telah selesai.</p>
+              ) : event.status === 'cancelled' ? (
+                <p className="text-red-600">Event telah dibatalkan.</p>
+              ) : (
+                <p className="text-amber-600">Pendaftaran telah ditutup. Kuota terpenuhi.</p>
+              )}
             </div>
-          )}
-            
-          {user && isRegistered ? (
-            <div className="space-y-4">
-              <div className="p-3 bg-green-50 border border-green-200 text-green-800 rounded-md text-sm">
-                Anda sudah terdaftar pada kegiatan ini
-              </div>
-              <Button className="w-full" variant="outline">
-                Lihat Detail Pendaftaran
+          ) : isRegistered ? (
+            <div className="text-center py-4">
+              <Badge className="mb-2 px-3 py-1.5 text-md">✓ Terdaftar</Badge>
+              <p className="text-gray-600 mt-2">Anda telah terdaftar pada event ini.</p>
+            </div>
+          ) : !user && !allowGuestRegistration ? (
+            <div className="text-center py-4">
+              <p className="text-gray-600 mb-4">Login untuk mendaftar event ini.</p>
+              <Button asChild className="w-full">
+                <a href="/auth">Login / Daftar</a>
               </Button>
             </div>
           ) : (
-            allowGuestRegistration || user ? (
+            <div className="text-center py-4">
+              <p className="text-gray-600 mb-4">
+                {eventIsFullyBooked 
+                  ? "Kuota pendaftaran sudah penuh"
+                  : "Silahkan mendaftar untuk mengikuti event ini."
+                }
+              </p>
               <Button 
+                onClick={onRegister} 
                 className="w-full" 
-                onClick={onRegister}
-                disabled={registrationClosed}
+                disabled={eventIsFullyBooked}
               >
-                {registrationClosed ? (
-                  eventIsFullyBooked ? 'Kuota Pendaftaran Penuh' : 'Pendaftaran Ditutup'
-                ) : (
-                  'Daftar Sekarang'
-                )}
+                Daftar Sekarang
               </Button>
-            ) : (
-              <div className="space-y-4">
-                <Button className="w-full" asChild>
-                  <Link to="/auth">Login untuk Mendaftar</Link>
-                </Button>
-              </div>
-            )
+            </div>
           )}
-          
-          <div className="mt-4">
-            <Button variant="outline" className="w-full gap-2">
-              <Share2 className="h-4 w-4" /> Bagikan Event
-            </Button>
-          </div>
-        </div>
-      </div>
+
+          {event.organizer_info && (
+            <>
+              <div className="border-t pt-4 mt-4">
+                <h3 className="font-semibold text-base mb-2">Informasi Penyelenggara</h3>
+                <p className="text-sm text-gray-600">{event.organizer_info}</p>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
