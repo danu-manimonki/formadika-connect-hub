@@ -353,40 +353,51 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Tulis deskripsi
             hideOnClick: true,
           }}
           shouldShow={({ editor, from }) => {
-            const node = editor.view.nodeDOM(from) as HTMLElement
-            if (node && node.classList.contains('citation')) {
-              return true
+            // Fix: Add null check and ensure the node exists before accessing classList
+            try {
+              const node = editor.view.nodeDOM(from) as HTMLElement
+              return node && node.classList && node.classList.contains('citation')
+            } catch (error) {
+              console.error('Error in BubbleMenu shouldShow:', error)
+              return false
             }
-            return false
           }}
         >
           <div className="reference-tooltip">
             {(() => {
-              const selection = editor.state.selection
-              const node = editor.view.nodeDOM(selection.from) as HTMLElement
-              
-              if (!node || !node.classList.contains('citation')) return null
-              
-              const title = node.getAttribute('data-title')
-              const author = node.getAttribute('data-author')
-              const url = node.getAttribute('data-url')
-              
-              return (
-                <>
-                  <h4>{title}</h4>
-                  {author && <p>Oleh: {author}</p>}
-                  {url && (
-                    <a 
-                      href={url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      Lihat sumber
-                    </a>
-                  )}
-                </>
-              )
+              try {
+                const selection = editor.state.selection
+                // Fix: Add null check and similar safety measures here
+                if (!selection) return null
+                
+                const node = editor.view.nodeDOM(selection.from) as HTMLElement
+                
+                if (!node || !node.classList || !node.classList.contains('citation')) return null
+                
+                const title = node.getAttribute('data-title')
+                const author = node.getAttribute('data-author')
+                const url = node.getAttribute('data-url')
+                
+                return (
+                  <>
+                    <h4>{title}</h4>
+                    {author && <p>Oleh: {author}</p>}
+                    {url && (
+                      <a 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        Lihat sumber
+                      </a>
+                    )}
+                  </>
+                )
+              } catch (error) {
+                console.error('Error rendering citation tooltip:', error)
+                return null
+              }
             })()}
           </div>
         </BubbleMenu>
