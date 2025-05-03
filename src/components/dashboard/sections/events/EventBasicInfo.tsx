@@ -9,9 +9,10 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useEventImageUpload } from "@/hooks/useEventImageUpload";
 import { ImageGalleryPicker } from "./ImageGalleryPicker";
+import { EventFormData } from "./EventForm.types";
 
 interface EventBasicInfoProps {
-  form: ReturnType<typeof useForm>;
+  form: ReturnType<typeof useForm<EventFormData>>;
 }
 
 export function EventBasicInfo({ form }: EventBasicInfoProps) {

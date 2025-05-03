@@ -2,40 +2,16 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Calendar, Users, MapPin, ArrowRight } from 'lucide-react';
+import { useEventsQuery } from '@/hooks/queries/events/useEventsQuery';
+import { useEffect, useState } from 'react';
+import { Event } from '@/types/database';
 
-const events = [
-  {
-    id: 1,
-    title: 'Workshop Beasiswa Lanjut Studi',
-    date: '15 April 2025',
-    location: 'Aula Pemda Karanganyar',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
-    participants: 50
-  },
-  {
-    id: 2,
-    title: 'Seminar Karir untuk Fresh Graduate',
-    date: '20 April 2025',
-    location: 'Zoom Meeting',
-    image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    participants: 100
-  },
-  {
-    id: 3,
-    title: 'Pengabdian Masyarakat Desa Binaan',
-    date: '28 April 2025',
-    location: 'Desa Karangpandan, Karanganyar',
-    image: 'https://images.unsplash.com/photo-1560523159-4a9692d222f9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1936&q=80',
-    participants: 35
-  }
-];
-
-const EventCard = ({ event }) => {
+const EventCard = ({ event }: { event: Event }) => {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="h-48 overflow-hidden">
         <img 
-          src={event.image} 
+          src={event.image_url || 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80'} 
           alt={event.title}
           className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
         />
@@ -63,6 +39,64 @@ const EventCard = ({ event }) => {
 };
 
 const EventsSection = () => {
+  const { data: apiEvents, isLoading } = useEventsQuery();
+  const [events, setEvents] = useState<Event[]>([]);
+  
+  useEffect(() => {
+    if (apiEvents && apiEvents.length > 0) {
+      // Only show featured events or latest 3 events
+      const featuredEvents = apiEvents.filter(event => event.is_featured);
+      if (featuredEvents.length > 0) {
+        setEvents(featuredEvents.slice(0, 3));
+      } else {
+        setEvents(apiEvents.slice(0, 3));
+      }
+    } else if (!isLoading) {
+      // Use fallback data if no events from API
+      setEvents([
+        {
+          id: '1',
+          title: 'Workshop Beasiswa Lanjut Studi',
+          date: '15 April 2025',
+          location: 'Aula Pemda Karanganyar',
+          image_url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80',
+          participants: 50,
+          description: '',
+          time: '09:00',
+          type: 'offline',
+          created_at: '',
+          updated_at: ''
+        },
+        {
+          id: '2',
+          title: 'Seminar Karir untuk Fresh Graduate',
+          date: '20 April 2025',
+          location: 'Zoom Meeting',
+          image_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+          participants: 100,
+          description: '',
+          time: '13:00',
+          type: 'online',
+          created_at: '',
+          updated_at: ''
+        },
+        {
+          id: '3',
+          title: 'Pengabdian Masyarakat Desa Binaan',
+          date: '28 April 2025',
+          location: 'Desa Karangpandan, Karanganyar',
+          image_url: 'https://images.unsplash.com/photo-1560523159-4a9692d222f9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1936&q=80',
+          participants: 35,
+          description: '',
+          time: '08:00',
+          type: 'offline',
+          created_at: '',
+          updated_at: ''
+        }
+      ]);
+    }
+  }, [apiEvents, isLoading]);
+
   return (
     <section className="section bg-white">
       <div className="section-container">

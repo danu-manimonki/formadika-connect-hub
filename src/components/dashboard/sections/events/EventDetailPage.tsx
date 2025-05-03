@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { EventForm } from "./EventForm";
 import { EventRegistrations } from "./EventRegistrations";
 import { useNavigate } from "react-router-dom";
+import { Event } from "@/types/database";
 
 interface EventDetailPageProps {
   eventId: string;
@@ -33,7 +34,14 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Ensure the type is correctly typed as 'online' | 'offline'
+      const typedEvent = {
+        ...data,
+        type: data.type === 'online' ? 'online' : 'offline'
+      } as Event;
+      
+      return typedEvent;
     }
   });
 

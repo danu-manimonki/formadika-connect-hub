@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,6 +72,10 @@ export default function EventsSection() {
     }
   };
 
+  const handleViewEvent = (id: string) => {
+    console.log("Viewing event:", id);
+  };
+
   const filteredEvents = events?.filter((event) => {
     const matchesSearch =
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -115,11 +118,13 @@ export default function EventsSection() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Gambar</TableHead>
                   <TableHead>Judul</TableHead>
                   <TableHead>Tanggal</TableHead>
                   <TableHead>Waktu</TableHead>
                   <TableHead>Lokasi</TableHead>
                   <TableHead>Tipe</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,6 +134,7 @@ export default function EventsSection() {
                   events={filteredEvents}
                   onEdit={handleOpenSheet}
                   onDelete={handleDelete}
+                  onView={handleViewEvent}
                 />
               </TableBody>
             </Table>
