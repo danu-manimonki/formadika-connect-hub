@@ -15,22 +15,17 @@ if (typeof window !== 'undefined') {
   window.API_URL = API_URL;
 }
 
-// Make API_URL available to components
+// Make API_URL available globally
 declare global {
   interface Window {
     API_URL: string;
   }
-  
-  interface ImportMeta {
-    env: {
-      MODE: string;
-      VITE_API_URL?: string;
-    }
-  }
 }
 
 // Assign to import.meta.env for use in components
-import.meta.env.VITE_API_URL = API_URL;
+if (import.meta.env.VITE_API_URL === undefined) {
+  import.meta.env.VITE_API_URL = API_URL;
+}
 
 // Create Supabase client with proper authentication configuration
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
