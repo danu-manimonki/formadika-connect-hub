@@ -2,9 +2,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Users, Wifi, WifiOff } from "lucide-react";
-import { AuthUser } from "@/types/database";
 import { Event } from "@/types/database";
 import { Badge } from "../ui/badge";
+
+// Define AuthUser type since it's not exported from @/types/database
+interface AuthUser {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    name?: string;
+  };
+}
 
 interface EventDetailInfoProps {
   event: Event;
@@ -138,15 +146,8 @@ export function EventDetailInfo({
               </Button>
             </div>
           )}
-
-          {event.organizer_info && (
-            <>
-              <div className="border-t pt-4 mt-4">
-                <h3 className="font-semibold text-base mb-2">Informasi Penyelenggara</h3>
-                <p className="text-sm text-gray-600">{event.organizer_info}</p>
-              </div>
-            </>
-          )}
+          
+          {/* Remove references to organizer_info since it doesn't exist in Event type */}
         </CardContent>
       </Card>
     </div>
