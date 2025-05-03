@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme"
 import animate from "tailwindcss-animate"
@@ -17,7 +18,7 @@ const config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
-        heading: ["Poppins", "sans-serif"], // Added font-heading definition
+        heading: ["Poppins", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
