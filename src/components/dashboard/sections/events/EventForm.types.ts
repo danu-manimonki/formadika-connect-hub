@@ -8,4 +8,7 @@ export interface EventFormData {
   type: 'online' | 'offline';
   participants: number;
   image_url: string;
+  is_featured?: boolean;
+  max_participants?: number;
+  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
 }

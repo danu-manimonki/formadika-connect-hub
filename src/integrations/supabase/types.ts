@@ -45,6 +45,50 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          attendance_status: string | null
+          email: string
+          event_id: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          registration_date: string
+          user_id: string
+        }
+        Insert: {
+          attendance_status?: string | null
+          email: string
+          event_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          registration_date?: string
+          user_id: string
+        }
+        Update: {
+          attendance_status?: string | null
+          email?: string
+          event_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          registration_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -52,8 +96,13 @@ export type Database = {
           description: string
           id: string
           image_url: string | null
+          is_featured: boolean | null
           location: string
+          max_participants: number | null
+          notification_sent: boolean | null
           participants: number
+          registered_participants: number | null
+          status: string | null
           time: string
           title: string
           type: string
@@ -65,8 +114,13 @@ export type Database = {
           description: string
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           location: string
+          max_participants?: number | null
+          notification_sent?: boolean | null
           participants?: number
+          registered_participants?: number | null
+          status?: string | null
           time: string
           title: string
           type: string
@@ -78,11 +132,46 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           location?: string
+          max_participants?: number | null
+          notification_sent?: boolean | null
           participants?: number
+          registered_participants?: number | null
+          status?: string | null
           time?: string
           title?: string
           type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gallery: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          is_featured: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          is_featured?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          is_featured?: boolean | null
+          title?: string
           updated_at?: string
         }
         Relationships: []

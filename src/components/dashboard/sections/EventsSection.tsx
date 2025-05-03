@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,15 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import { EventFilters } from "./events/EventFilters";
 import { EventTable } from "./events/EventTable";
 import { EventForm } from "./events/EventForm";
+import { UpcomingEventsNotification } from "../UpcomingEventsNotification";
+import { EventDetailPage } from "./events/EventDetailPage";
 
 export default function EventsSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
   const { data: events, isLoading, refetch } = useQuery({
     queryKey: ['events'],
@@ -72,6 +76,10 @@ export default function EventsSection() {
     }
   };
 
+  const handleViewEvent = (eventId: string) => {
+    setViewingEventId(eventId);
+  };
+
   const filteredEvents = events?.filter((event) => {
     const matchesSearch =
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,6 +89,16 @@ export default function EventsSection() {
     return matchesSearch && event.type === filter;
   }) || [];
 
+  // Jika sedang melihat detail event
+  if (viewingEventId) {
+    return (
+      <EventDetailPage 
+        eventId={viewingEventId} 
+        onBack={() => setViewingEventId(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -89,6 +107,8 @@ export default function EventsSection() {
           Kelola data kegiatan organisasi
         </p>
       </div>
+
+      <UpcomingEventsNotification />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -120,6 +140,7 @@ export default function EventsSection() {
                   <TableHead>Waktu</TableHead>
                   <TableHead>Lokasi</TableHead>
                   <TableHead>Tipe</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,6 +150,7 @@ export default function EventsSection() {
                   events={filteredEvents}
                   onEdit={handleOpenSheet}
                   onDelete={handleDelete}
+                  onView={handleViewEvent}
                 />
               </TableBody>
             </Table>

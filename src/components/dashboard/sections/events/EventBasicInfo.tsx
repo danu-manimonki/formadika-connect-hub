@@ -1,39 +1,50 @@
 
+import React, { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { UseFormReturn } from "react-hook-form";
-import { EventFormData } from "./EventForm.types";
 import { Button } from "@/components/ui/button";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 import { useEventImageUpload } from "@/hooks/useEventImageUpload";
-import { useState, useEffect } from "react";
-import { FileImage } from "lucide-react";
+import { ImageGalleryPicker } from "./ImageGalleryPicker";
 
 interface EventBasicInfoProps {
-  form: UseFormReturn<EventFormData>;
+  form: ReturnType<typeof useForm>;
 }
 
 export function EventBasicInfo({ form }: EventBasicInfoProps) {
-  const { handleImageUpload, isUploading } = useEventImageUpload();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const { handleImageUpload, isUploading } = useEventImageUpload();
 
-  // Initialize preview with existing image_url if available
-  useEffect(() => {
+  // Get initial value from form for preview
+  React.useEffect(() => {
     const currentImageUrl = form.getValues("image_url");
     if (currentImageUrl) {
       setPreviewUrl(currentImageUrl);
     }
   }, [form]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Create temporary preview URL
-    const tempPreviewUrl = URL.createObjectURL(file);
-    setPreviewUrl(tempPreviewUrl);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran file terlalu besar (maks 5MB)");
+      return;
+    }
+
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Format file tidak didukung");
+      return;
+    }
+
     setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleUpload = async () => {
@@ -70,47 +81,48 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
     console.log("Image removed, form value cleared");
   };
 
+  const handleSelectFromGallery = (imageUrl: string) => {
+    form.setValue("image_url", imageUrl, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true
+    });
+    setPreviewUrl(imageUrl);
+    setSelectedFile(null);
+  };
+
   return (
-    <>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-2 border-b">
+        <h3 className="text-lg font-medium">Informasi Dasar</h3>
+      </div>
+
       <FormField
         control={form.control}
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Title</FormLabel>
+            <FormLabel>Judul Kegiatan</FormLabel>
             <FormControl>
-              <Input placeholder="Event title" {...field} />
+              <Input placeholder="Masukkan judul kegiatan" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-      
+
       <FormField
         control={form.control}
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Deskripsi</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Enter event description"
+                placeholder="Berikan deskripsi tentang kegiatan" 
+                className="min-h-[100px]" 
                 {...field} 
               />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      
-      <FormField
-        control={form.control}
-        name="location"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Location</FormLabel>
-            <FormControl>
-              <Input placeholder="Event location" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -122,37 +134,45 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
         name="image_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Event Image</FormLabel>
+            <FormLabel>Gambar Event</FormLabel>
             <FormControl>
-              <div className="space-y-4">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  disabled={isUploading}
-                  className="hidden"
-                  id="event-image"
-                />
-                <div className="flex gap-2">
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    className="flex-1"
-                    onClick={() => document.getElementById("event-image")?.click()}
+                    onClick={() => document.getElementById("event-image-input")?.click()}
+                    className="gap-2"
                   >
-                    <FileImage className="mr-2 h-4 w-4" />
-                    Select Image
+                    <Upload className="h-4 w-4" /> Pilih File
                   </Button>
+                  <input
+                    id="event-image-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  
                   {selectedFile && (
                     <Button
                       type="button"
-                      disabled={isUploading}
+                      variant="secondary"
                       onClick={handleUpload}
-                      className="flex-1"
+                      disabled={isUploading}
                     >
-                      {isUploading ? "Uploading..." : "Upload Image"}
+                      {isUploading ? "Mengunggah..." : "Unggah Sekarang"}
                     </Button>
                   )}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsGalleryOpen(true)}
+                    className="gap-2"
+                  >
+                    <ImageIcon className="h-4 w-4" /> Pilih dari Galeri
+                  </Button>
                 </div>
                 
                 {/* Preview of uploaded or selected image */}
@@ -160,23 +180,23 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                     <img
                       src={previewUrl}
-                      alt="Event preview"
+                      alt="Preview"
                       className="h-full w-full object-cover"
                     />
                     <Button
                       type="button"
+                      size="icon"
                       variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-opacity-70"
+                      className="absolute right-2 top-2 h-6 w-6"
                       onClick={handleRemoveImage}
                     >
-                      Remove
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
                 
                 <div className="text-xs text-muted-foreground">
-                  {field.value ? "✓ Image uploaded and ready to submit" : "No image selected yet"}
+                  {field.value ? "✓ Gambar diunggah dan siap untuk dikirim" : "Belum ada gambar yang dipilih"}
                 </div>
               </div>
             </FormControl>
@@ -184,6 +204,12 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           </FormItem>
         )}
       />
-    </>
+
+      <ImageGalleryPicker
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        onSelectImage={handleSelectFromGallery}
+      />
+    </div>
   );
 }
