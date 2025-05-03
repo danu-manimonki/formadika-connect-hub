@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/layout/Layout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { EventDetailHeader } from "@/components/events/EventDetailHeader";
@@ -27,6 +27,15 @@ export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const { user } = useAuth();
+  const [regularUser, setRegularUser] = useState<any>(null);
+  
+  useEffect(() => {
+    // Check for regular user in localStorage
+    const storedUser = localStorage.getItem('regular_user');
+    if (storedUser) {
+      setRegularUser(JSON.parse(storedUser));
+    }
+  }, []);
   
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', id],
@@ -49,21 +58,36 @@ export default function EventDetail() {
   });
 
   const { data: isRegistered, refetch: refetchRegistration } = useQuery({
-    queryKey: ['eventRegistration', id, user?.id],
+    queryKey: ['eventRegistration', id, user?.id || regularUser?.id],
     queryFn: async () => {
-      if (!id || !user?.id) return false;
+      if (!id) return false;
       
-      const { data, error } = await supabase
-        .from('event_registrations')
-        .select('id')
-        .eq('event_id', id)
-        .eq('user_id', user.id)
-        .single();
+      // Check if user is registered based on either Supabase auth or regular user
+      if (user?.id) {
+        const { data, error } = await supabase
+          .from('event_registrations')
+          .select('id')
+          .eq('event_id', id)
+          .eq('user_id', user.id)
+          .single();
 
-      if (error) return false;
-      return !!data;
+        if (error) return false;
+        return !!data;
+      } else if (regularUser?.email) {
+        const { data, error } = await supabase
+          .from('event_registrations')
+          .select('id')
+          .eq('event_id', id)
+          .eq('email', regularUser.email)
+          .single();
+
+        if (error) return false;
+        return !!data;
+      }
+      
+      return false;
     },
-    enabled: !!user?.id && !!id
+    enabled: !!id && !!(user?.id || regularUser?.id)
   });
 
   // Check if email is already registered (even without login)
@@ -82,7 +106,12 @@ export default function EventDetail() {
 
   const handleRegister = async (values: RegisterFormData) => {
     try {
-      if (!id || !user?.id) {
+      if (!id) {
+        toast.error("ID event tidak valid");
+        return;
+      }
+      
+      if (!user?.id && !regularUser) {
         toast.error("Anda harus login untuk mendaftar event");
         return;
       }
@@ -98,7 +127,7 @@ export default function EventDetail() {
         .from('event_registrations')
         .insert({
           event_id: id,
-          user_id: user.id,
+          user_id: user?.id || null, // Use Supabase user ID if available
           name: values.name,
           email: values.email,
           phone: values.phone,
@@ -162,6 +191,9 @@ export default function EventDetail() {
   const registrationClosed = event.status === 'completed' || 
     event.status === 'cancelled' || eventIsFullyBooked;
 
+  // Get current user info (either from Supabase or regular user)
+  const currentUser = user || regularUser;
+
   return (
     <Layout>
       <EventDetailHeader event={event} />
@@ -171,7 +203,7 @@ export default function EventDetail() {
           event={event}
           isRegistered={!!isRegistered}
           onRegister={() => setIsRegistrationOpen(true)}
-          user={user}
+          user={currentUser}
           eventIsFullyBooked={eventIsFullyBooked}
           registrationClosed={registrationClosed}
           allowGuestRegistration={false}
@@ -183,7 +215,7 @@ export default function EventDetail() {
         onClose={() => setIsRegistrationOpen(false)}
         onSubmit={handleRegister}
         event={event}
-        defaultEmail={user?.email || ""}
+        defaultEmail={currentUser?.email || ""}
       />
     </Layout>
   );

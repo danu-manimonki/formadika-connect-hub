@@ -6,25 +6,26 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 
 export default function RegisterUser() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [university, setUniversity] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!name || !email || !password) {
       toast({
         title: "Error",
-        description: "Email dan password harus diisi",
+        description: "Nama, email, dan password harus diisi",
         variant: "destructive"
       });
       return;
@@ -42,8 +43,19 @@ export default function RegisterUser() {
     setIsLoading(true);
     
     try {
-      // Register as regular user
-      await signUp(email, password);
+      // Register the user directly to the users table rather than using Supabase auth
+      const { data, error } = await supabase
+        .from('regular_users')
+        .insert([
+          { 
+            name,
+            email, 
+            password: password, // Note: In a real app, you'd want to hash this password
+            university
+          }
+        ]);
+      
+      if (error) throw error;
       
       toast({
         title: "Sukses",
@@ -76,6 +88,17 @@ export default function RegisterUser() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="name">Nama Lengkap</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Nama Lengkap"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -84,6 +107,16 @@ export default function RegisterUser() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="university">Universitas</Label>
+                <Input
+                  id="university"
+                  type="text"
+                  placeholder="Universitas"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
                 />
               </div>
               <div className="space-y-2">

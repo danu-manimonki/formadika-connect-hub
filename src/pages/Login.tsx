@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -32,15 +33,39 @@ export default function Login() {
     setIsLoading(true);
     
     try {
+      // First try to login as a regular user from our database
+      const { data: regularUsers, error: regularUserError } = await supabase
+        .from('regular_users')
+        .select('*')
+        .eq('email', email)
+        .eq('password', password) // Note: In a real app, this would use proper password hashing
+        .single();
+      
+      if (regularUsers) {
+        // Regular user login successful
+        // Store user info in localStorage for session management
+        localStorage.setItem('regular_user', JSON.stringify(regularUsers));
+        
+        toast({
+          title: "Login Berhasil",
+          description: "Anda berhasil masuk sebagai pengguna biasa",
+        });
+        
+        navigate('/events');
+        return;
+      }
+      
+      // If not a regular user, try Supabase auth (for admins)
       await signIn(email, password);
       
+      // If we reach here, Supabase auth was successful
       toast({
-        title: "Login Berhasil",
-        description: "Anda berhasil masuk ke sistem",
+        title: "Login Berhasil (Admin)",
+        description: "Anda berhasil masuk ke sistem sebagai admin",
       });
       
-      // Redirect to events page after login
-      navigate('/events');
+      navigate('/dashboard');
+      
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
