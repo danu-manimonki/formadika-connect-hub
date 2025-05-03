@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, Wifi, WifiOff } from "lucide-react";
 import { Event } from "@/types/database";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -87,12 +87,16 @@ export function EventTable({
           <TableCell>{event.time}</TableCell>
           <TableCell>{event.location}</TableCell>
           <TableCell>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
               event.type === "online" 
                 ? "bg-blue-100 text-blue-800" 
                 : "bg-green-100 text-green-800"
             }`}>
-              {event.type === "online" ? "Online" : "Offline"}
+              {event.type === "online" ? (
+                <><Wifi size={12} /> Online</>
+              ) : (
+                <><WifiOff size={12} /> Offline</>
+              )}
             </span>
           </TableCell>
           <TableCell>

@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock, Mail, MapPin, Users } from "lucide-react";
+import { Calendar, Clock, Mail, MapPin, Users, Wifi, WifiOff } from "lucide-react";
 import { Event } from "@/types/database";
 
 interface EventOverviewProps {
@@ -35,8 +35,12 @@ export function EventOverview({ event, onViewRegistrations }: EventOverviewProps
           <div>
             <h2 className="text-2xl font-bold">{event.title}</h2>
             <div className="flex gap-2 mt-1">
-              <Badge variant={event.type === 'online' ? 'secondary' : 'default'}>
-                {event.type === 'online' ? 'Online' : 'Offline'}
+              <Badge variant={event.type === 'online' ? 'secondary' : 'default'} className="gap-1.5">
+                {event.type === 'online' ? (
+                  <><Wifi className="h-3 w-3" /> Online</>
+                ) : (
+                  <><WifiOff className="h-3 w-3" /> Offline</>
+                )}
               </Badge>
               {getStatusBadge(event.status)}
               {event.is_featured && (

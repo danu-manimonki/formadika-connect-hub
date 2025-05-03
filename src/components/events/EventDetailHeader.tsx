@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Wifi, WifiOff, Bandage } from "lucide-react";
 import { Event } from "@/types/database";
 
 interface EventDetailHeaderProps {
@@ -17,8 +17,12 @@ export function EventDetailHeader({ event }: EventDetailHeaderProps) {
         </Link>
         <div className="max-w-3xl">
           <div className="flex gap-2 mb-2">
-            <Badge className={event.type === "online" ? "bg-blue-200 text-blue-800" : "bg-green-200 text-green-800"}>
-              {event.type === "online" ? "Online" : "Offline"}
+            <Badge className={event.type === "online" ? "bg-blue-200 text-blue-800 gap-1.5" : "bg-green-200 text-green-800 gap-1.5"}>
+              {event.type === "online" ? (
+                <><Wifi className="h-3 w-3" /> Online</>
+              ) : (
+                <><WifiOff className="h-3 w-3" /> Offline</>
+              )}
             </Badge>
             {event.status && (
               <Badge variant={event.status === "cancelled" ? "destructive" : "secondary"}>

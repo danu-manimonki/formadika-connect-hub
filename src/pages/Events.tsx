@@ -3,7 +3,7 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import { Calendar, Clock, MapPin, Users, CalendarDays, ArrowRight } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, CalendarDays, ArrowRight, Wifi, WifiOff, Bandage } from "lucide-react";
 
 const Events = () => {
   // Mock upcoming events
@@ -94,24 +94,28 @@ const Events = () => {
   const EventCard = ({ event }) => {
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="h-48 overflow-hidden">
+        <div className="h-48 overflow-hidden relative">
           <img 
             src={event.image} 
             alt={event.title}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
           />
-        </div>
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-xl">{event.title}</h3>
-            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+          <div className="absolute top-3 left-3">
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
               event.type === 'online' 
                 ? 'bg-blue-100 text-blue-800' 
                 : 'bg-green-100 text-green-800'
             }`}>
-              {event.type === 'online' ? 'Online' : 'Offline'}
-            </span>
+              {event.type === 'online' ? (
+                <><Wifi size={14} /> Online</>
+              ) : (
+                <><WifiOff size={14} /> Offline</>
+              )}
+            </div>
           </div>
+        </div>
+        <div className="p-6">
+          <h3 className="font-semibold text-xl mb-2">{event.title}</h3>
           <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
           <div className="space-y-2 text-sm text-gray-500 mb-4">
             <div className="flex items-center">
