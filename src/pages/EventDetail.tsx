@@ -94,50 +94,46 @@ export default function EventDetail() {
         return;
       }
 
-      // Trying to register - first let's create the registration data
-      const registrationData = {
-        event_id: id,
-        user_id: user?.id || null,
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        university: values.university,
-        faculty: values.faculty,
-        attendance_status: 'registered',
-        registration_date: new Date().toISOString()
-      };
-
-      // Try inserting the registration with admin rights - this avoids RLS policies
-      // In a real implementation, this should be done through a secure server endpoint
-      // Use the Supabase client with admin rights via service role token
-      const { error } = await fetch(`${import.meta.env.VITE_API_URL}/api/register-event`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData),
-      }).then(res => res.json());
+      // Gunakan service_role key untuk bypass RLS
+      // Note: Pada implementasi nyata, sebaiknya gunakan function serverless
+      // atau endpoint API khusus dengan autentikasi yang tepat
+      const { error } = await supabase
+        .from('event_registrations')
+        .insert({
+          event_id: id,
+          user_id: user?.id || null,
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          university: values.university,
+          faculty: values.faculty,
+          attendance_status: 'registered',
+          registration_date: new Date().toISOString()
+        });
 
       if (error) {
-        console.error("Registration error:", error);
-        toast.error("Gagal mendaftar: " + (error.message || "Terjadi kesalahan"));
-        return;
+        console.error("Error details:", error);
+        
+        if (error.code === '23505') {
+          toast.error("Anda sudah terdaftar pada event ini");
+        } else if (error.message.includes('violates row-level security policy')) {
+          toast.error("Gagal mendaftar: Anda tidak memiliki izin untuk mendaftar");
+        } else {
+          toast.error("Gagal mendaftar: " + error.message);
+        }
+        throw error;
       }
 
+      // Update registered_participants count
+      await supabase.rpc('increment_participants', { event_id: id });
+      
       toast.success("Berhasil mendaftar ke event");
       setIsRegistrationOpen(false);
-      
       if (user?.id) {
         refetchRegistration();
       }
-      
-      // Refresh event data to update participant count
-      if (event) {
-        supabase.rpc('increment_participants', { event_id: id });
-      }
     } catch (error) {
       console.error("Error registering to event:", error);
-      toast.error("Gagal mendaftar: Terjadi kesalahan sistem");
     }
   };
 

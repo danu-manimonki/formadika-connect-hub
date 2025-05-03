@@ -11,7 +11,7 @@ import EventsGrid from "@/components/events/EventsGrid";
 import ProposalCTA from "@/components/events/ProposalCTA";
 
 const Events = () => {
-  const { data: apiEvents, isLoading, error } = useEventsQuery();
+  const { data: apiEvents, isLoading } = useEventsQuery();
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
 
@@ -75,42 +75,35 @@ const Events = () => {
             </Button>
           </div>
           
-          {error ? (
-            <div className="p-8 text-center">
-              <p className="text-red-500 mb-2">Terjadi kesalahan saat memuat data kegiatan</p>
-              <Button onClick={() => window.location.reload()} variant="outline">Coba lagi</Button>
-            </div>
-          ) : (
-            <Tabs defaultValue="upcoming" className="mb-8">
-              <TabsList className="mb-6">
-                <TabsTrigger value="upcoming">Kegiatan Mendatang</TabsTrigger>
-                <TabsTrigger value="past">Kegiatan Sebelumnya</TabsTrigger>
-              </TabsList>
-              <TabsContent value="upcoming">
-                <EventsGrid 
-                  events={upcomingEvents} 
-                  isLoading={isLoading} 
-                  emptyMessage="Tidak ada kegiatan mendatang saat ini"
-                  showTime={true}
-                />
-              </TabsContent>
-              <TabsContent value="past">
-                <EventsGrid 
-                  events={pastEvents} 
-                  isLoading={isLoading} 
-                  emptyMessage="Tidak ada kegiatan sebelumnya"
-                  showTime={true}
-                />
-                {pastEvents.length > 6 && (
-                  <div className="mt-8 text-center">
-                    <Button asChild variant="outline">
-                      <a href="#">Lihat Lebih Banyak <ArrowRight size={16} className="ml-2" /></a>
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          )}
+          <Tabs defaultValue="upcoming" className="mb-8">
+            <TabsList className="mb-6">
+              <TabsTrigger value="upcoming">Kegiatan Mendatang</TabsTrigger>
+              <TabsTrigger value="past">Kegiatan Sebelumnya</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upcoming">
+              <EventsGrid 
+                events={upcomingEvents} 
+                isLoading={isLoading} 
+                emptyMessage="Tidak ada kegiatan mendatang saat ini"
+                showTime={true}
+              />
+            </TabsContent>
+            <TabsContent value="past">
+              <EventsGrid 
+                events={pastEvents} 
+                isLoading={isLoading} 
+                emptyMessage="Tidak ada kegiatan sebelumnya"
+                showTime={true}
+              />
+              {pastEvents.length > 6 && (
+                <div className="mt-8 text-center">
+                  <Button asChild variant="outline">
+                    <a href="#">Lihat Lebih Banyak <ArrowRight size={16} className="ml-2" /></a>
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
           
           <ProposalCTA />
         </div>
