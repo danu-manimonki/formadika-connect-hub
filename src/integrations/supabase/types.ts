@@ -50,34 +50,40 @@ export type Database = {
           attendance_status: string | null
           email: string
           event_id: string
+          faculty: string | null
           id: string
           name: string
           notes: string | null
           phone: string | null
           registration_date: string
-          user_id: string
+          university: string | null
+          user_id: string | null
         }
         Insert: {
           attendance_status?: string | null
           email: string
           event_id: string
+          faculty?: string | null
           id?: string
           name: string
           notes?: string | null
           phone?: string | null
           registration_date?: string
-          user_id: string
+          university?: string | null
+          user_id?: string | null
         }
         Update: {
           attendance_status?: string | null
           email?: string
           event_id?: string
+          faculty?: string | null
           id?: string
           name?: string
           notes?: string | null
           phone?: string | null
           registration_date?: string
-          user_id?: string
+          university?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
