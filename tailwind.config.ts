@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import typography from '@tailwindcss/typography';
 
 export default {
 	darkMode: ["class"],
@@ -120,8 +121,36 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
 				heading: ['Poppins', 'sans-serif'],
-			}
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						a: {
+							color: 'hsl(var(--primary))',
+							'&:hover': {
+								color: 'hsl(var(--primary) / 0.8)',
+							},
+						},
+						blockquote: {
+							borderLeftColor: 'hsl(var(--primary))',
+							backgroundColor: 'hsl(var(--muted))',
+							padding: '1rem',
+						},
+						'.citation': {
+							backgroundColor: 'hsl(var(--accent) / 0.1)',
+							borderRadius: '0.25rem',
+							padding: '0.125rem 0.25rem',
+							color: 'hsl(var(--accent))',
+							textDecoration: 'underline',
+							cursor: 'pointer',
+						},
+					},
+				},
+			},
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		typography
+	],
 } satisfies Config;

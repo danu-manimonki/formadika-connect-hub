@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { useEventImageUpload } from "@/hooks/useEventImageUpload";
 import { ImageGalleryPicker } from "./ImageGalleryPicker";
 import { EventFormData } from "./EventForm.types";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 interface EventBasicInfoProps {
   form: ReturnType<typeof useForm<EventFormData>>;
@@ -92,6 +92,14 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
     setSelectedFile(null);
   };
 
+  const handleEditorChange = (html: string) => {
+    form.setValue("description", html, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-2 border-b">
@@ -119,10 +127,10 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           <FormItem>
             <FormLabel>Deskripsi</FormLabel>
             <FormControl>
-              <Textarea 
-                placeholder="Berikan deskripsi tentang kegiatan" 
-                className="min-h-[100px]" 
-                {...field} 
+              <RichTextEditor 
+                value={field.value} 
+                onChange={handleEditorChange}
+                placeholder="Berikan deskripsi tentang kegiatan, tambahkan referensi jika perlu"
               />
             </FormControl>
             <FormMessage />

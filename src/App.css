@@ -1,42 +1,101 @@
+
+/* This file contains custom styles for the app that are not handled by Tailwind */
+.tiptap-toolbar {
+  @apply bg-white border-b border-gray-200 p-2 flex flex-wrap gap-1 sticky top-0 z-10;
+}
+
+.tiptap-toolbar button {
+  @apply p-1.5 hover:bg-gray-100 rounded;
+}
+
+.tiptap-toolbar button.is-active {
+  @apply bg-gray-100 text-primary;
+}
+
+.tiptap-toolbar .toolbar-dropdown {
+  @apply relative;
+}
+
+.tiptap-toolbar .toolbar-dropdown-content {
+  @apply absolute left-0 top-full mt-1 bg-white shadow-lg border border-gray-200 rounded-md w-48 z-50;
+}
+
+.tiptap-editor {
+  @apply min-h-[200px] px-3 py-2 focus:outline-none;
+}
+
+.tiptap-editor ul {
+  @apply list-disc ml-5;
+}
+
+.tiptap-editor ol {
+  @apply list-decimal ml-5;
+}
+
+.tiptap-editor p {
+  @apply my-1;
+}
+
+.tiptap-editor h1, 
+.tiptap-editor h2, 
+.tiptap-editor h3, 
+.tiptap-editor h4 {
+  @apply font-bold mt-2 mb-1;
+}
+
+.tiptap-editor h1 {
+  @apply text-2xl;
+}
+
+.tiptap-editor h2 {
+  @apply text-xl;
+}
+
+.tiptap-editor h3 {
+  @apply text-lg;
+}
+
+.tiptap-editor blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-2;
+}
+
+.tiptap-editor a {
+  @apply text-blue-600 underline;
+}
+
+.tiptap-editor .citation {
+  @apply bg-blue-50 text-blue-700 px-1 rounded border-b border-blue-300 cursor-pointer;
+}
+
+.tiptap-reference-form {
+  @apply p-4 bg-white rounded-md shadow-md;
+}
+
+.tiptap-reference-form input,
+.tiptap-reference-form textarea {
+  @apply w-full border border-gray-300 rounded-md px-3 py-1.5 mb-3;
+}
+
+.tiptap-reference-form button {
+  @apply bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90;
+}
+
+/* Remove the default styling from App.css to avoid conflicts */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  text-align: initial;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.reference-tooltip {
+  @apply bg-white p-3 shadow-lg border rounded-md max-w-sm;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.reference-tooltip h4 {
+  @apply font-semibold text-sm mb-1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.reference-tooltip p {
+  @apply text-xs text-gray-600;
 }
