@@ -246,6 +246,10 @@ export type Database = {
         Args: { user_id: string; role: string }
         Returns: boolean
       }
+      increment_participants: {
+        Args: { event_id: string }
+        Returns: undefined
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean

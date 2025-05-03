@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -34,7 +33,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
       date: event.date || '',
       time: event.time || '',
       location: event.location || '',
-      type: event.type as 'online' | 'offline',
+      type: event.type,
       participants: event.participants || 0,
       image_url: event.image_url || '',
       is_featured: event.is_featured || false,
@@ -64,7 +63,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
         date: event.date || '',
         time: event.time || '',
         location: event.location || '',
-        type: event.type as 'online' | 'offline',
+        type: event.type,
         participants: event.participants || 0,
         image_url: event.image_url || '',
         is_featured: event.is_featured || false,

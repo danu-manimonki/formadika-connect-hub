@@ -10,6 +10,11 @@ export interface Event {
   participants: number;
   created_at: string;
   updated_at: string;
+  is_featured?: boolean;
+  max_participants?: number | null;
+  registered_participants?: number;
+  notification_sent?: boolean;
+  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
 }
 
 export interface GalleryItem {
