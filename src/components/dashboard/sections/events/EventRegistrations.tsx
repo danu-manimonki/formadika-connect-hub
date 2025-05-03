@@ -2,15 +2,13 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Check, Download, Mail, X } from "lucide-react";
+import { Download } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RegistrationsFilters } from "./registrations/RegistrationsFilters";
+import { RegistrationsTable } from "./registrations/RegistrationsTable";
+import { UpdateStatusDialog } from "./registrations/UpdateStatusDialog";
 
 interface EventRegistrationProps {
   eventId: string;
@@ -21,7 +19,6 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [registrationToUpdate, setRegistrationToUpdate] = useState<any>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState<string>("");
 
   const { data: registrations = [], isLoading, refetch } = useQuery({
     queryKey: ['eventRegistrations', eventId],
@@ -51,7 +48,7 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     }
   });
 
-  const handleUpdateStatus = async () => {
+  const handleUpdateStatus = async (newStatus: string) => {
     try {
       const { error } = await supabase
         .from('event_registrations')
@@ -109,19 +106,9 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     toast.success("Data berhasil diekspor ke CSV");
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'registered':
-        return <Badge variant="outline">Terdaftar</Badge>;
-      case 'confirmed':
-        return <Badge variant="secondary">Dikonfirmasi</Badge>;
-      case 'attended':
-        return <Badge className="bg-green-100 text-green-800">Hadir</Badge>;
-      case 'cancelled':
-        return <Badge variant="destructive">Dibatalkan</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+  const handleSelectRegistration = (registration: any) => {
+    setRegistrationToUpdate(registration);
+    setIsUpdateDialogOpen(true);
   };
 
   return (
@@ -139,122 +126,32 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
-          <div className="relative w-full md:w-80">
-            <Input 
-              placeholder="Cari berdasarkan nama atau email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-full md:w-40">
-              <SelectValue placeholder="Filter Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="registered">Terdaftar</SelectItem>
-              <SelectItem value="confirmed">Dikonfirmasi</SelectItem>
-              <SelectItem value="attended">Hadir</SelectItem>
-              <SelectItem value="cancelled">Dibatalkan</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <RegistrationsFilters 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
+        />
 
         <div className="border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>No. Telepon</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tanggal Daftar</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    Memuat data pendaftar...
-                  </TableCell>
-                </TableRow>
-              ) : filteredRegistrations.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                    {searchTerm || selectedStatus !== "all" 
-                      ? "Tidak ada pendaftar yang sesuai filter" 
-                      : "Belum ada pendaftar untuk kegiatan ini"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredRegistrations.map(registration => (
-                  <TableRow key={registration.id}>
-                    <TableCell className="font-medium">{registration.name}</TableCell>
-                    <TableCell>{registration.email}</TableCell>
-                    <TableCell>{registration.phone || "-"}</TableCell>
-                    <TableCell>{getStatusBadge(registration.attendance_status)}</TableCell>
-                    <TableCell>
-                      {new Date(registration.registration_date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setRegistrationToUpdate(registration);
-                            setNewStatus(registration.attendance_status);
-                            setIsUpdateDialogOpen(true);
-                          }}
-                        >
-                          Ubah Status
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <RegistrationsTable 
+            registrations={filteredRegistrations}
+            isLoading={isLoading}
+            searchTerm={searchTerm}
+            selectedStatus={selectedStatus}
+            onUpdateStatus={handleSelectRegistration}
+          />
         </div>
       </CardContent>
       
-      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ubah Status Pendaftaran</DialogTitle>
-            <DialogDescription>
-              Perbarui status pendaftaran untuk {registrationToUpdate?.name}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Select value={newStatus} onValueChange={setNewStatus}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih status baru" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="registered">Terdaftar</SelectItem>
-              <SelectItem value="confirmed">Dikonfirmasi</SelectItem>
-              <SelectItem value="attended">Hadir</SelectItem>
-              <SelectItem value="cancelled">Dibatalkan</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsUpdateDialogOpen(false)}>
-              Batal
-            </Button>
-            <Button onClick={handleUpdateStatus}>
-              Simpan Perubahan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {registrationToUpdate && (
+        <UpdateStatusDialog 
+          registration={registrationToUpdate}
+          isOpen={isUpdateDialogOpen}
+          onOpenChange={setIsUpdateDialogOpen}
+          onUpdate={handleUpdateStatus}
+        />
+      )}
     </Card>
   );
 }
