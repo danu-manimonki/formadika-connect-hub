@@ -36,13 +36,12 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
 
       if (error) throw error;
       
-      // Ensure the type is correctly typed as 'online' | 'offline'
-      const typedEvent = {
+      // Add type assertion to ensure the event conforms to the Event interface
+      // This ensures that `type` is treated as 'online' | 'offline'
+      return {
         ...data,
         type: data.type === 'online' ? 'online' : 'offline'
       } as Event;
-      
-      return typedEvent;
     }
   });
 

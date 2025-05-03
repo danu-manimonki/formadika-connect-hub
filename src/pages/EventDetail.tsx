@@ -10,6 +10,7 @@ import { EventDetailHeader } from "@/components/events/EventDetailHeader";
 import { EventDetailInfo } from "@/components/events/EventDetailInfo";
 import { EventRegistrationForm } from "@/components/events/EventRegistrationForm";
 import { z } from "zod";
+import { Event } from "@/types/database";
 
 // Schema imported from the EventRegistrationForm
 const registerSchema = z.object({
@@ -37,7 +38,13 @@ export default function EventDetail() {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Add type assertion to ensure the event conforms to the Event interface
+      // This ensures that `type` is treated as 'online' | 'offline'
+      return {
+        ...data,
+        type: data.type === 'online' ? 'online' : 'offline'
+      } as Event;
     }
   });
 
