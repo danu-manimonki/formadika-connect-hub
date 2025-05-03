@@ -82,8 +82,8 @@ export default function EventDetail() {
 
   const handleRegister = async (values: RegisterFormData) => {
     try {
-      if (!id) {
-        toast.error("Event tidak valid");
+      if (!id || !user?.id) {
+        toast.error("Anda harus login untuk mendaftar event");
         return;
       }
 
@@ -94,14 +94,11 @@ export default function EventDetail() {
         return;
       }
 
-      // Gunakan service_role key untuk bypass RLS
-      // Note: Pada implementasi nyata, sebaiknya gunakan function serverless
-      // atau endpoint API khusus dengan autentikasi yang tepat
       const { error } = await supabase
         .from('event_registrations')
         .insert({
           event_id: id,
-          user_id: user?.id || null,
+          user_id: user.id,
           name: values.name,
           email: values.email,
           phone: values.phone,
@@ -129,9 +126,7 @@ export default function EventDetail() {
       
       toast.success("Berhasil mendaftar ke event");
       setIsRegistrationOpen(false);
-      if (user?.id) {
-        refetchRegistration();
-      }
+      refetchRegistration();
     } catch (error) {
       console.error("Error registering to event:", error);
     }
@@ -179,7 +174,7 @@ export default function EventDetail() {
           user={user}
           eventIsFullyBooked={eventIsFullyBooked}
           registrationClosed={registrationClosed}
-          allowGuestRegistration={true}
+          allowGuestRegistration={false}
         />
       </div>
 

@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound";
 import LogoProcessor from "./pages/LogoProcessor";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import RegisterUser from "./pages/RegisterUser";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,8 @@ const AppRoutes = () => {
         <Route path="/logo-processor" element={<LogoProcessor />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register-user" element={<RegisterUser />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

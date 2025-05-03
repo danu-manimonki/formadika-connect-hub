@@ -10,7 +10,10 @@ import {
   CalendarDays,
   Users,
   BookOpen,
-  Heart
+  Heart,
+  LogIn,
+  LogOut,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -64,7 +67,7 @@ const DropdownItem = ({ to, label, icon }: { to: string; label: string; icon?: R
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-sm border-b">
@@ -100,17 +103,46 @@ const Navbar = () => {
           <NavItem to="/forum" label="Forum" />
           <NavItem to="/contact" label="Kontak" />
           
-          <div className="ml-4">
-            {isAdmin && (
-              <Button 
-                asChild 
-                variant="default" 
-                size="sm" 
-                className="bg-blue-600 hover:bg-blue-700 text-white mr-2"
-              >
-                <Link to="/dashboard">Admin</Link>
-              </Button>
+          <div className="ml-4 flex items-center gap-2">
+            {user ? (
+              <>
+                <div className="text-sm mr-2">
+                  Halo, {user.email?.split('@')[0]}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={() => signOut()}
+                >
+                  <LogOut size={16} /> Keluar
+                </Button>
+                {isAdmin && (
+                  <Button 
+                    asChild 
+                    variant="default" 
+                    size="sm" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Link to="/dashboard">Admin</Link>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm" className="flex items-center gap-1">
+                  <Link to="/login">
+                    <LogIn size={16} className="mr-1" /> Login
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" size="sm" className="flex items-center gap-1">
+                  <Link to="/register-user">
+                    <UserPlus size={16} className="mr-1" /> Daftar
+                  </Link>
+                </Button>
+              </>
             )}
+            
             <Button asChild variant="default" size="sm" className="bg-formadika-gold hover:bg-formadika-gold/90 text-white">
               <Link to="/donate" className="flex items-center gap-1">
                 <Heart size={16} className="mr-1" /> Donasi
@@ -158,15 +190,51 @@ const Navbar = () => {
               <Link to="/contact" className="px-3 py-2 hover:text-formadika-teal" onClick={() => setIsMenuOpen(false)}>
                 Kontak
               </Link>
-              {isAdmin && (
-                <Link 
-                  to="/dashboard" 
-                  className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Admin
-                </Link>
+              
+              {user ? (
+                <>
+                  <div className="px-3 py-2">
+                    Halo, {user.email?.split('@')[0]}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-1" 
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LogOut size={16} /> Keluar
+                  </Button>
+                  {isAdmin && (
+                    <Link 
+                      to="/dashboard" 
+                      className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Admin
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="px-3 py-2 border rounded flex items-center gap-1" 
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <LogIn size={16} className="mr-1" /> Login
+                  </Link>
+                  <Link 
+                    to="/register-user" 
+                    className="px-3 py-2 bg-gray-100 rounded flex items-center gap-1" 
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <UserPlus size={16} className="mr-1" /> Daftar
+                  </Link>
+                </>
               )}
+              
               <Button asChild variant="default" size="sm" className="w-full bg-formadika-gold hover:bg-formadika-gold/90">
                 <Link to="/donate" onClick={() => setIsMenuOpen(false)}>
                   <Heart size={16} className="mr-2" /> Donasi

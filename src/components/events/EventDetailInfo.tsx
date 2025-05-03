@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Users, Wifi, WifiOff } from "lucide-react";
 import { Event } from "@/types/database";
 import { Badge } from "../ui/badge";
+import { Link } from "react-router-dom";
 
 // Define AuthUser type since it's not exported from @/types/database
 interface AuthUser {
@@ -133,12 +134,15 @@ export function EventDetailInfo({
               <Badge className="mb-2 px-3 py-1.5 text-md">✓ Terdaftar</Badge>
               <p className="text-gray-600 mt-2">Anda telah terdaftar pada event ini.</p>
             </div>
-          ) : !user && !allowGuestRegistration ? (
+          ) : !user ? (
             <div className="text-center py-4">
-              <p className="text-gray-600 mb-4">Login untuk mendaftar event ini.</p>
-              <Button asChild className="w-full">
-                <a href="/auth">Login / Daftar</a>
+              <p className="text-gray-600 mb-4">Anda harus login untuk mendaftar event ini.</p>
+              <Button asChild className="w-full mb-2">
+                <Link to="/login">Login</Link>
               </Button>
+              <p className="text-sm text-gray-500">
+                Belum punya akun? <Link to="/register-user" className="text-formadika-600 hover:underline">Daftar disini</Link>
+              </p>
             </div>
           ) : (
             <div className="text-center py-4">
