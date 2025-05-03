@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { useEventImageUpload } from "@/hooks/useEventImageUpload";
 import { ImageGalleryPicker } from "./ImageGalleryPicker";
 import { EventFormData } from "./EventForm.types";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 interface EventBasicInfoProps {
   form: ReturnType<typeof useForm<EventFormData>>;
@@ -119,10 +119,10 @@ export function EventBasicInfo({ form }: EventBasicInfoProps) {
           <FormItem>
             <FormLabel>Deskripsi</FormLabel>
             <FormControl>
-              <Textarea 
-                placeholder="Berikan deskripsi tentang kegiatan" 
-                className="min-h-[100px]" 
-                {...field} 
+              <RichTextEditor 
+                content={field.value} 
+                onChange={field.onChange}
+                className="min-h-[200px]"
               />
             </FormControl>
             <FormMessage />

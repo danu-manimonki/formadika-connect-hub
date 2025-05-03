@@ -36,7 +36,10 @@ export function EventDetailInfo({
         
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Tentang Kegiatan</h2>
-          <p className="whitespace-pre-line">{event.description}</p>
+          <div 
+            className="prose max-w-none" 
+            dangerouslySetInnerHTML={{ __html: event.description }}
+          />
         </div>
       </div>
 
