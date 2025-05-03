@@ -9,19 +9,27 @@ export function useEventsQuery() {
     queryKey: ['events'],
     queryFn: async () => {
       console.log("Fetching events...");
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Supabase fetch error:", error);
-        toast.error('Failed to fetch events');
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          toast.error('Failed to fetch events');
+          throw error;
+        }
+
+        console.log("Events fetched:", data);
+        return data as Event[];
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        toast.error('Failed to fetch events. Please try again later.');
         throw error;
       }
-
-      console.log("Events fetched:", data);
-      return data as Event[];
-    }
+    },
+    retry: 1,
+    staleTime: 60000, // 1 minute
   });
 }

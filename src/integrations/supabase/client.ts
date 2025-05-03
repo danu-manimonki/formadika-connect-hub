@@ -28,9 +28,13 @@ if (import.meta.env.VITE_API_URL === undefined) {
 }
 
 // Create Supabase client with proper authentication configuration
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    persistSession: true, // Store session in localStorage
-    autoRefreshToken: true, // Auto-refresh token when needed
+export const supabase = createClient<Database>(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    }
   }
-});
+);
