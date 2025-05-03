@@ -1,6 +1,3 @@
-
-/* App-specific styles that don't conflict with Tailwind */
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -34,4 +31,12 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

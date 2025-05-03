@@ -1,6 +1,6 @@
 
-import React from "react";
-import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, Clock, MapPin, Users, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
@@ -50,13 +50,9 @@ export function EventPreview({ isOpen, onClose, eventData }: EventPreviewProps) 
               </Badge>
             </div>
             
-            <div className="prose max-w-none mb-4">
-              {eventData.description ? (
-                <div dangerouslySetInnerHTML={{ __html: eventData.description }} />
-              ) : (
-                <p>Deskripsi event akan muncul di sini...</p>
-              )}
-            </div>
+            <p className="text-gray-600 mb-4">
+              {eventData.description || "Deskripsi event akan muncul di sini..."}
+            </p>
             
             <div className="space-y-2 text-sm text-gray-500 mb-4">
               <div className="flex items-center">

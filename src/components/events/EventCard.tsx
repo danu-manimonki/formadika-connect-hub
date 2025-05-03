@@ -10,12 +10,6 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, showTime = false }: EventCardProps) => {
-  // Fungsi untuk menghapus tag HTML
-  const stripHtml = (html: string) => {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || "";
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="h-48 overflow-hidden relative">
@@ -40,7 +34,7 @@ const EventCard = ({ event, showTime = false }: EventCardProps) => {
       </div>
       <div className="p-6">
         <h3 className="font-semibold text-xl mb-2">{event.title}</h3>
-        <p className="text-gray-600 mb-4 line-clamp-2">{stripHtml(event.description)}</p>
+        <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
         <div className="space-y-2 text-sm text-gray-500 mb-4">
           <div className="flex items-center">
             <Calendar size={16} className="mr-2" />
