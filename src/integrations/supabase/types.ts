@@ -256,6 +256,15 @@ export type Database = {
         Args: { event_id: string }
         Returns: undefined
       }
+      insert_regular_user: {
+        Args: {
+          user_name: string
+          user_email: string
+          user_password: string
+          user_university: string
+        }
+        Returns: string
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean

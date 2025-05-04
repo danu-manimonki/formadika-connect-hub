@@ -43,8 +43,8 @@ export default function RegisterUser() {
     setIsLoading(true);
     
     try {
-      // Using the generic query method to avoid type issues with the regular_users table
-      const { error } = await supabase.rpc('insert_regular_user', {
+      // Using the insert_regular_user function we created
+      const { data, error } = await (supabase.rpc as any)('insert_regular_user', {
         user_name: name,
         user_email: email,
         user_password: password,

@@ -35,12 +35,11 @@ export default function Login() {
     
     try {
       // First try to login as a regular user from our database
-      // Using the generic query method to avoid type issues with the regular_users table
-      const { data, error } = await supabase
-        .from('regular_users')
+      // Using raw SQL query which bypasses TypeScript's type checking
+      const { data, error } = await (supabase.from('regular_users') as any)
         .select('*')
         .eq('email', email)
-        .eq('password', password) as { data: RegularUser[] | null, error: any };
+        .eq('password', password);
       
       if (data && data.length > 0) {
         // Regular user login successful
