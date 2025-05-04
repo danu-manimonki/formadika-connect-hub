@@ -8,11 +8,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { EventDetailHeader } from "@/components/events/EventDetailHeader";
 import { EventDetailInfo } from "@/components/events/EventDetailInfo";
-import { EventRegistrationForm } from "@/components/events/EventRegistrationForm";
 import { z } from "zod";
 import { Event, RegularUser } from "@/types/database";
 
-// Schema imported from the EventRegistrationForm
+// Schema for validation if needed
 const registerSchema = z.object({
   name: z.string().min(3, "Nama harus diisi minimal 3 karakter"),
   email: z.string().email("Email tidak valid"),
@@ -25,7 +24,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
-  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const [regularUser, setRegularUser] = useState<RegularUser | null>(null);
   
@@ -37,7 +36,7 @@ export default function EventDetail() {
     }
   }, []);
   
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading: eventLoading } = useQuery({
     queryKey: ['event', id],
     queryFn: async () => {
       if (!id) return null;
@@ -104,41 +103,52 @@ export default function EventDetail() {
     return error ? false : !!data;
   };
 
-  const handleRegister = async (values: RegisterFormData) => {
+  // Direct registration without form
+  const handleDirectRegister = async () => {
     try {
+      setIsLoading(true);
+      
       if (!id) {
         toast.error("ID event tidak valid");
         return;
       }
       
-      if (!user?.id && !regularUser) {
+      const currentUser = user || regularUser;
+      
+      if (!currentUser) {
         toast.error("Anda harus login untuk mendaftar event");
+        return;
+      }
+      
+      // Check if already registered
+      if (isRegistered) {
+        toast.info("Anda sudah terdaftar pada event ini");
         return;
       }
 
       // Check if email is already registered
-      const isEmailRegistered = await checkEmailRegistered(values.email);
+      const isEmailRegistered = await checkEmailRegistered(currentUser.email);
       if (isEmailRegistered) {
         toast.error("Email ini sudah terdaftar pada event ini");
         return;
       }
 
-      // Prepopulate data dari regular user jika tersedia
-      const currentUser = regularUser || user;
-      
+      // Prepare registration data
+      const registrationData = {
+        event_id: id,
+        user_id: user?.id || null,
+        name: regularUser?.name || user?.user_metadata?.name || '',
+        email: regularUser?.email || user?.email || '',
+        phone: '',  // Default empty since we don't have phone in the user object
+        university: regularUser?.university || '',
+        faculty: '',  // Default empty since we don't have faculty in the user object
+        attendance_status: 'registered',
+        registration_date: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from('event_registrations')
-        .insert({
-          event_id: id,
-          user_id: user?.id || null, // Use Supabase user ID if available
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          university: values.university,
-          faculty: values.faculty,
-          attendance_status: 'registered',
-          registration_date: new Date().toISOString()
-        });
+        .insert(registrationData);
 
       if (error) {
         console.error("Error details:", error);
@@ -157,14 +167,15 @@ export default function EventDetail() {
       await supabase.rpc('increment_participants', { event_id: id });
       
       toast.success("Berhasil mendaftar ke event");
-      setIsRegistrationOpen(false);
       refetchRegistration();
     } catch (error) {
       console.error("Error registering to event:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (isLoading) {
+  if (eventLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
@@ -196,16 +207,6 @@ export default function EventDetail() {
 
   // Get current user info (either from Supabase or regular user)
   const currentUser = user || regularUser;
-  
-  // Prepopulate form data if user is logged in
-  let defaultFormData = {};
-  if (regularUser) {
-    defaultFormData = {
-      name: regularUser.name || "",
-      email: regularUser.email || "",
-      university: regularUser.university || ""
-    };
-  }
 
   return (
     <Layout>
@@ -215,24 +216,13 @@ export default function EventDetail() {
         <EventDetailInfo 
           event={event}
           isRegistered={!!isRegistered}
-          onRegister={() => setIsRegistrationOpen(true)}
+          onRegister={handleDirectRegister}
           user={currentUser}
           eventIsFullyBooked={eventIsFullyBooked}
           registrationClosed={registrationClosed}
-          allowGuestRegistration={false}
+          isLoading={isLoading}
         />
       </div>
-
-      {/* Hanya tampilkan form jika user sudah login dan klik tombol Register */}
-      {(user || regularUser) && isRegistrationOpen && (
-        <EventRegistrationForm
-          isOpen={isRegistrationOpen}
-          onClose={() => setIsRegistrationOpen(false)}
-          onSubmit={handleRegister}
-          event={event}
-          defaultEmail={currentUser?.email || ""}
-        />
-      )}
     </Layout>
   );
 }

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Users, Wifi, WifiOff } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, Wifi, WifiOff, Check } from "lucide-react";
 import { Event } from "@/types/database";
 import { Badge } from "../ui/badge";
 import { Link } from "react-router-dom";
@@ -23,6 +23,7 @@ interface EventDetailInfoProps {
   eventIsFullyBooked: boolean;
   registrationClosed: boolean;
   allowGuestRegistration?: boolean;
+  isLoading?: boolean;
 }
 
 export function EventDetailInfo({ 
@@ -32,7 +33,8 @@ export function EventDetailInfo({
   user, 
   eventIsFullyBooked,
   registrationClosed,
-  allowGuestRegistration = false
+  allowGuestRegistration = false,
+  isLoading = false
 }: EventDetailInfoProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -131,8 +133,11 @@ export function EventDetailInfo({
             </div>
           ) : isRegistered ? (
             <div className="text-center py-4">
-              <Badge className="mb-2 px-3 py-1.5 text-md">✓ Terdaftar</Badge>
-              <p className="text-gray-600 mt-2">Anda telah terdaftar pada event ini.</p>
+              <div className="bg-green-50 text-green-700 rounded-md p-4 flex items-center justify-center mb-3">
+                <Check className="h-5 w-5 mr-2 text-green-500" />
+                <span className="font-medium">Anda telah terdaftar</span>
+              </div>
+              <p className="text-gray-600">Anda telah berhasil mendaftar pada event ini.</p>
             </div>
           ) : !user ? (
             <div className="text-center py-4">
@@ -155,9 +160,9 @@ export function EventDetailInfo({
               <Button 
                 onClick={onRegister} 
                 className="w-full" 
-                disabled={eventIsFullyBooked}
+                disabled={eventIsFullyBooked || isLoading}
               >
-                Daftar Sekarang
+                {isLoading ? "Memproses..." : "Daftar Sekarang"}
               </Button>
             </div>
           )}
