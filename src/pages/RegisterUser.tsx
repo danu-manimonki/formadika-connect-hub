@@ -43,7 +43,7 @@ export default function RegisterUser() {
     setIsLoading(true);
     
     try {
-      // Using the insert_regular_user function we created
+      // Use type assertion for the RPC call since TypeScript doesn't know about our custom function
       const { data, error } = await (supabase.rpc as any)('insert_regular_user', {
         user_name: name,
         user_email: email,

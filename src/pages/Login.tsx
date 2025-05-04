@@ -35,8 +35,9 @@ export default function Login() {
     
     try {
       // First try to login as a regular user from our database
-      // Using raw SQL query which bypasses TypeScript's type checking
-      const { data, error } = await (supabase.from('regular_users') as any)
+      // We need to use type assertion here because 'regular_users' table is not in the TypeScript types yet
+      const { data, error } = await (supabase
+        .from('regular_users') as any)
         .select('*')
         .eq('email', email)
         .eq('password', password);
