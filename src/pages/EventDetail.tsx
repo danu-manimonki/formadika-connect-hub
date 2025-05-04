@@ -161,20 +161,6 @@ export default function EventDetail() {
     }
   };
 
-  // Check if email is already registered (even without login)
-  const checkEmailRegistered = async (email: string): Promise<boolean> => {
-    if (!id) return false;
-    
-    const { data, error } = await supabase
-      .from('event_registrations')
-      .select('id')
-      .eq('event_id', id)
-      .eq('email', email)
-      .single();
-      
-    return error ? false : !!data;
-  };
-
   if (isLoading) {
     return (
       <Layout>
