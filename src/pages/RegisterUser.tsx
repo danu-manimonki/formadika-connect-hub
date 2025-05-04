@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
+import { PostgrestResponse } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function RegisterUser() {
   const [name, setName] = useState('');
@@ -43,17 +44,15 @@ export default function RegisterUser() {
     setIsLoading(true);
     
     try {
-      // Register the user directly to the users table rather than using Supabase auth
+      // Register the user directly to the regular_users table
       const { data, error } = await supabase
         .from('regular_users')
-        .insert([
-          { 
-            name,
-            email, 
-            password: password, // Note: In a real app, you'd want to hash this password
-            university
-          }
-        ]);
+        .insert({
+          name,
+          email,
+          password, // Note: In a real app, you'd want to hash this password
+          university
+        });
       
       if (error) throw error;
       

@@ -78,3 +78,13 @@ export interface Donation {
   created_at: string;
   updated_at: string;
 }
+
+// Add the RegularUser type for the regular_users table
+export interface RegularUser {
+  id: string;
+  name: string;
+  email: string;
+  password: string;  // Note: In production, passwords should be hashed
+  university: string | null;
+  created_at: string;
+}

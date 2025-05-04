@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
+import type { RegularUser } from '@/types/database';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -34,17 +35,17 @@ export default function Login() {
     
     try {
       // First try to login as a regular user from our database
-      const { data: regularUsers, error: regularUserError } = await supabase
+      const { data, error } = await supabase
         .from('regular_users')
         .select('*')
         .eq('email', email)
         .eq('password', password) // Note: In a real app, this would use proper password hashing
         .single();
       
-      if (regularUsers) {
+      if (data) {
         // Regular user login successful
         // Store user info in localStorage for session management
-        localStorage.setItem('regular_user', JSON.stringify(regularUsers));
+        localStorage.setItem('regular_user', JSON.stringify(data as RegularUser));
         
         toast({
           title: "Login Berhasil",
