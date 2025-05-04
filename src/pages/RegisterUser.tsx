@@ -7,7 +7,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import Layout from '@/components/layout/Layout';
-import { PostgrestResponse } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function RegisterUser() {
@@ -44,15 +43,13 @@ export default function RegisterUser() {
     setIsLoading(true);
     
     try {
-      // Register the user directly to the regular_users table
-      const { data, error } = await supabase
-        .from('regular_users')
-        .insert({
-          name,
-          email,
-          password, // Note: In a real app, you'd want to hash this password
-          university
-        });
+      // Using the generic query method to avoid type issues with the regular_users table
+      const { error } = await supabase.rpc('insert_regular_user', {
+        user_name: name,
+        user_email: email,
+        user_password: password,
+        user_university: university || null
+      });
       
       if (error) throw error;
       

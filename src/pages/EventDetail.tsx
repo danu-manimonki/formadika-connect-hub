@@ -10,7 +10,7 @@ import { EventDetailHeader } from "@/components/events/EventDetailHeader";
 import { EventDetailInfo } from "@/components/events/EventDetailInfo";
 import { EventRegistrationForm } from "@/components/events/EventRegistrationForm";
 import { z } from "zod";
-import { Event } from "@/types/database";
+import { Event, RegularUser } from "@/types/database";
 
 // Schema imported from the EventRegistrationForm
 const registerSchema = z.object({
@@ -27,7 +27,7 @@ export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const { user } = useAuth();
-  const [regularUser, setRegularUser] = useState<any>(null);
+  const [regularUser, setRegularUser] = useState<RegularUser | null>(null);
   
   useEffect(() => {
     // Check for regular user in localStorage
@@ -159,6 +159,20 @@ export default function EventDetail() {
     } catch (error) {
       console.error("Error registering to event:", error);
     }
+  };
+
+  // Check if email is already registered (even without login)
+  const checkEmailRegistered = async (email: string): Promise<boolean> => {
+    if (!id) return false;
+    
+    const { data, error } = await supabase
+      .from('event_registrations')
+      .select('id')
+      .eq('event_id', id)
+      .eq('email', email)
+      .single();
+      
+    return error ? false : !!data;
   };
 
   if (isLoading) {

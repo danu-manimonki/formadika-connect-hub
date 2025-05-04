@@ -35,17 +35,17 @@ export default function Login() {
     
     try {
       // First try to login as a regular user from our database
+      // Using the generic query method to avoid type issues with the regular_users table
       const { data, error } = await supabase
         .from('regular_users')
         .select('*')
         .eq('email', email)
-        .eq('password', password) // Note: In a real app, this would use proper password hashing
-        .single();
+        .eq('password', password) as { data: RegularUser[] | null, error: any };
       
-      if (data) {
+      if (data && data.length > 0) {
         // Regular user login successful
         // Store user info in localStorage for session management
-        localStorage.setItem('regular_user', JSON.stringify(data as RegularUser));
+        localStorage.setItem('regular_user', JSON.stringify(data[0]));
         
         toast({
           title: "Login Berhasil",
