@@ -123,6 +123,9 @@ export default function EventDetail() {
         return;
       }
 
+      // Prepopulate data dari regular user jika tersedia
+      const currentUser = regularUser || user;
+      
       const { error } = await supabase
         .from('event_registrations')
         .insert({
@@ -193,6 +196,16 @@ export default function EventDetail() {
 
   // Get current user info (either from Supabase or regular user)
   const currentUser = user || regularUser;
+  
+  // Prepopulate form data if user is logged in
+  let defaultFormData = {};
+  if (regularUser) {
+    defaultFormData = {
+      name: regularUser.name || "",
+      email: regularUser.email || "",
+      university: regularUser.university || ""
+    };
+  }
 
   return (
     <Layout>
@@ -210,13 +223,16 @@ export default function EventDetail() {
         />
       </div>
 
-      <EventRegistrationForm
-        isOpen={isRegistrationOpen}
-        onClose={() => setIsRegistrationOpen(false)}
-        onSubmit={handleRegister}
-        event={event}
-        defaultEmail={currentUser?.email || ""}
-      />
+      {/* Hanya tampilkan form jika user sudah login dan klik tombol Register */}
+      {(user || regularUser) && isRegistrationOpen && (
+        <EventRegistrationForm
+          isOpen={isRegistrationOpen}
+          onClose={() => setIsRegistrationOpen(false)}
+          onSubmit={handleRegister}
+          event={event}
+          defaultEmail={currentUser?.email || ""}
+        />
+      )}
     </Layout>
   );
 }
