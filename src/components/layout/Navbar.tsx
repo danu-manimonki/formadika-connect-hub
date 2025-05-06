@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,9 +13,11 @@ import {
   Heart,
   LogIn,
   LogOut,
-  UserPlus
+  UserPlus,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { RegularUser } from '@/types/database';
 
 const NavItem = ({ to, label, children, dropdown = false }: { 
   to: string; 
@@ -68,7 +70,32 @@ const DropdownItem = ({ to, label, icon }: { to: string; label: string; icon?: R
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAdmin, user, signOut } = useAuth();
+  const [regularUser, setRegularUser] = useState<RegularUser | null>(null);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check for regular user in localStorage
+    const storedUser = localStorage.getItem('regular_user');
+    if (storedUser) {
+      setRegularUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    if (user) {
+      // Supabase auth signout
+      signOut();
+    } else if (regularUser) {
+      // Regular user signout (clear localStorage)
+      localStorage.removeItem('regular_user');
+      setRegularUser(null);
+      navigate('/');
+    }
+  };
+
+  const isLoggedIn = !!user || !!regularUser;
+  const userName = user?.email?.split('@')[0] || regularUser?.name || '';
+  
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16 px-4 mx-auto">
@@ -104,29 +131,43 @@ const Navbar = () => {
           <NavItem to="/contact" label="Kontak" />
           
           <div className="ml-4 flex items-center gap-2">
-            {user ? (
+            {isLoggedIn ? (
               <>
                 <div className="text-sm mr-2">
-                  Halo, {user.email?.split('@')[0]}
+                  Halo, {userName}
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-1"
-                  onClick={() => signOut()}
-                >
-                  <LogOut size={16} /> Keluar
-                </Button>
-                {isAdmin && (
+                
+                {isAdmin ? (
                   <Button 
                     asChild 
                     variant="default" 
                     size="sm" 
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    <Link to="/dashboard">Admin</Link>
+                    <Link to="/dashboard">Admin Dashboard</Link>
+                  </Button>
+                ) : regularUser && (
+                  <Button 
+                    asChild 
+                    variant="default" 
+                    size="sm" 
+                    className="bg-formadika-teal hover:bg-formadika-teal/90 text-white"
+                  >
+                    <Link to="/user-dashboard">
+                      <UserCircle size={16} className="mr-1" /> 
+                      Dashboard
+                    </Link>
                   </Button>
                 )}
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={handleSignOut}
+                >
+                  <LogOut size={16} /> Keluar
+                </Button>
               </>
             ) : (
               <>
@@ -191,30 +232,40 @@ const Navbar = () => {
                 Kontak
               </Link>
               
-              {user ? (
+              {isLoggedIn ? (
                 <>
                   <div className="px-3 py-2">
-                    Halo, {user.email?.split('@')[0]}
+                    Halo, {userName}
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="flex items-center gap-1" 
-                    onClick={() => {
-                      signOut();
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <LogOut size={16} /> Keluar
-                  </Button>
-                  {isAdmin && (
+                  
+                  {isAdmin ? (
                     <Link 
                       to="/dashboard" 
                       className="px-3 py-2 bg-blue-600 text-white rounded flex items-center gap-1" 
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Admin
+                      Admin Dashboard
+                    </Link>
+                  ) : regularUser && (
+                    <Link 
+                      to="/user-dashboard" 
+                      className="px-3 py-2 bg-formadika-teal text-white rounded flex items-center gap-1" 
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <UserCircle size={16} className="mr-1" /> Dashboard
                     </Link>
                   )}
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-1" 
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LogOut size={16} /> Keluar
+                  </Button>
                 </>
               ) : (
                 <>

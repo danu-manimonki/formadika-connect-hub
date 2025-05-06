@@ -6,13 +6,19 @@ import DashboardContent from '@/components/dashboard/DashboardContent';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, isAdmin } = useAuth();
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  
+  // Redirect non-admin users
+  if (!isAdmin) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <div className="flex min-h-screen h-screen bg-background">

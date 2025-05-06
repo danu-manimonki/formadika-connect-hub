@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Event } from "@/types/database";
 import { Mail, Share, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventStatisticsProps {
   event: Event;
@@ -13,6 +15,24 @@ interface EventStatisticsProps {
 
 export function EventStatistics({ event, onViewRegistrations, onEdit }: EventStatisticsProps) {
   const navigate = useNavigate();
+  
+  // Get registration count for this event
+  const { data: registrationCount = 0, isLoading } = useQuery({
+    queryKey: ['eventRegistrationCount', event.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('event_registrations')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_id', event.id);
+      
+      if (error) {
+        console.error("Error fetching event registration count:", error);
+        return 0;
+      }
+      
+      return count || 0;
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -24,7 +44,7 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
               <div className="flex justify-between text-sm mb-1">
                 <span>Pendaftar</span>
                 <span className="font-medium">
-                  {event.registered_participants || 0}
+                  {isLoading ? '...' : registrationCount}
                   {event.max_participants ? ` / ${event.max_participants}` : ''}
                 </span>
               </div>
@@ -34,7 +54,7 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
                     className="bg-formadika-600 h-2.5 rounded-full" 
                     style={{ 
                       width: `${Math.min(
-                        ((event.registered_participants || 0) / event.max_participants) * 100, 
+                        ((isLoading ? 0 : registrationCount) / event.max_participants) * 100, 
                         100
                       )}%` 
                     }}

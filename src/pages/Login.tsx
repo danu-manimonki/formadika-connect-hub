@@ -52,8 +52,8 @@ export default function Login() {
           description: "Anda berhasil masuk sebagai pengguna biasa",
         });
         
-        // Navigate to events page for regular users
-        navigate('/events');
+        // Navigate to user dashboard for regular users
+        navigate('/user-dashboard');
         return;
       }
       
