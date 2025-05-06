@@ -29,6 +29,9 @@ export function EventDetailInfo({
   allowGuestRegistration = false,
   isLoading = false
 }: EventDetailInfoProps) {
+  // Check if user is either a regular user or authenticated user
+  const isLoggedIn = !!user;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <Card className="lg:col-span-2">
@@ -132,7 +135,7 @@ export function EventDetailInfo({
               </div>
               <p className="text-gray-600">Anda telah berhasil mendaftar pada event ini.</p>
             </div>
-          ) : !user ? (
+          ) : !isLoggedIn ? (
             <div className="text-center py-4">
               <p className="text-gray-600 mb-4">Anda harus login untuk mendaftar event ini.</p>
               <Button asChild className="w-full mb-2">

@@ -38,7 +38,7 @@ export function EventDetailContainer({
       <div className="container mx-auto px-4 py-12">
         <EventDetailInfo 
           event={event}
-          isRegistered={!!isRegistered}
+          isRegistered={isRegistered}
           onRegister={handleDirectRegister}
           user={user}
           eventIsFullyBooked={eventIsFullyBooked}

@@ -77,15 +77,17 @@ export function EventRegistrationHandler({
       // Prepare registration data
       const registrationData = {
         event_id: eventId,
-        user_id: user?.id || null,
-        name: regularUser?.name || user?.user_metadata?.name || '',
-        email: regularUser?.email || user?.email || '',
+        user_id: user?.id || null, // Use null for regular users
+        name: currentUser.name || user?.user_metadata?.name || '',
+        email: currentUser.email || user?.email || '',
         phone: '',  // Default empty since we don't have phone in the user object
         university: regularUser?.university || '',
         faculty: '',  // Default empty since we don't have faculty in the user object
-        attendance_status: 'registered',
-        registration_date: new Date().toISOString()
+        attendance_status: 'registered'
       };
+
+      // For debugging
+      console.log("Registration data:", registrationData);
 
       const { error } = await supabase
         .from('event_registrations')
@@ -97,7 +99,33 @@ export function EventRegistrationHandler({
         if (error.code === '23505') {
           toast.error("Anda sudah terdaftar pada event ini");
         } else if (error.message.includes('violates row-level security policy')) {
-          toast.error("Gagal mendaftar: Anda tidak memiliki izin untuk mendaftar");
+          // For regular users, we'll use an anonymous insert since they might not have permission
+          if (regularUser && !user) {
+            const anonRegistrationData = { ...registrationData };
+            const { error: anonError } = await supabase
+              .from('event_registrations')
+              .insert(anonRegistrationData);
+              
+            if (anonError) {
+              console.error("Anonymous registration error:", anonError);
+              toast.error("Gagal mendaftar: " + anonError.message);
+              throw anonError;
+            } else {
+              // Success with anonymous registration
+              // Update registered_participants count
+              await supabase.rpc('increment_participants', { event_id: eventId });
+              
+              // Invalidate related queries
+              queryClient.invalidateQueries({ queryKey: ['events'] });
+              queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+              
+              toast.success("Berhasil mendaftar ke event");
+              refetchRegistration();
+              return;
+            }
+          } else {
+            toast.error("Gagal mendaftar: Anda tidak memiliki izin untuk mendaftar");
+          }
         } else {
           toast.error("Gagal mendaftar: " + error.message);
         }

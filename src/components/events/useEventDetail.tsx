@@ -42,6 +42,12 @@ export function useEventDetail(eventId: string | undefined) {
     queryFn: async () => {
       if (!eventId) return false;
       
+      // For debugging - log which user we're checking
+      console.log("Checking registration for:", 
+        user ? `Auth user ID: ${user.id}` : 
+        regularUser ? `Regular user email: ${regularUser.email}` : 
+        "No user found");
+      
       // Check if user is registered based on either Supabase auth or regular user
       if (user?.id) {
         const { data, error } = await supabase
@@ -51,7 +57,11 @@ export function useEventDetail(eventId: string | undefined) {
           .eq('user_id', user.id)
           .single();
 
-        if (error) return false;
+        if (error) {
+          console.log("Auth user registration check error:", error);
+          return false;
+        }
+        console.log("Auth user registration found:", data);
         return !!data;
       } else if (regularUser?.email) {
         const { data, error } = await supabase
@@ -61,13 +71,17 @@ export function useEventDetail(eventId: string | undefined) {
           .eq('email', regularUser.email)
           .single();
 
-        if (error) return false;
+        if (error) {
+          console.log("Regular user registration check error:", error);
+          return false;
+        }
+        console.log("Regular user registration found:", data);
         return !!data;
       }
       
       return false;
     },
-    enabled: !!eventId && !!(user?.id || regularUser?.id)
+    enabled: !!eventId && !!(user?.id || regularUser?.email)
   });
 
   // Get current user info (either from Supabase or regular user)
