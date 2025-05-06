@@ -5,21 +5,14 @@ import { Calendar, Clock, MapPin, Users, Wifi, WifiOff, Check } from "lucide-rea
 import { Event } from "@/types/database";
 import { Badge } from "../ui/badge";
 import { Link } from "react-router-dom";
-
-// Define AuthUser type since it's not exported from @/types/database
-interface AuthUser {
-  id: string;
-  email?: string;
-  user_metadata?: {
-    name?: string;
-  };
-}
+import { RegularUser } from "@/types/database";
+import { User } from "@supabase/supabase-js";
 
 interface EventDetailInfoProps {
   event: Event;
   isRegistered: boolean;
   onRegister: () => void;
-  user: AuthUser | null;
+  user: User | RegularUser | null;
   eventIsFullyBooked: boolean;
   registrationClosed: boolean;
   allowGuestRegistration?: boolean;
