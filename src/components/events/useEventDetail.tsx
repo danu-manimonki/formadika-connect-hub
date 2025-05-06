@@ -1,0 +1,83 @@
+
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Event, RegularUser } from "@/types/database";
+
+export function useEventDetail(eventId: string | undefined) {
+  const { user } = useAuth();
+  const [regularUser, setRegularUser] = useState<RegularUser | null>(null);
+  
+  useEffect(() => {
+    // Check for regular user in localStorage
+    const storedUser = localStorage.getItem('regular_user');
+    if (storedUser) {
+      setRegularUser(JSON.parse(storedUser));
+    }
+  }, []);
+  
+  const { data: event, isLoading: eventLoading } = useQuery({
+    queryKey: ['event', eventId],
+    queryFn: async () => {
+      if (!eventId) return null;
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+
+      if (error) throw error;
+      
+      return {
+        ...data,
+        type: data.type === 'online' ? 'online' : 'offline'
+      } as Event;
+    }
+  });
+
+  const { data: isRegistered, refetch: refetchRegistration } = useQuery({
+    queryKey: ['eventRegistration', eventId, user?.id || regularUser?.id],
+    queryFn: async () => {
+      if (!eventId) return false;
+      
+      // Check if user is registered based on either Supabase auth or regular user
+      if (user?.id) {
+        const { data, error } = await supabase
+          .from('event_registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) return false;
+        return !!data;
+      } else if (regularUser?.email) {
+        const { data, error } = await supabase
+          .from('event_registrations')
+          .select('id')
+          .eq('event_id', eventId)
+          .eq('email', regularUser.email)
+          .single();
+
+        if (error) return false;
+        return !!data;
+      }
+      
+      return false;
+    },
+    enabled: !!eventId && !!(user?.id || regularUser?.id)
+  });
+
+  // Get current user info (either from Supabase or regular user)
+  const currentUser = user || regularUser;
+
+  return {
+    event,
+    eventLoading,
+    isRegistered,
+    currentUser,
+    refetchRegistration
+  };
+}
