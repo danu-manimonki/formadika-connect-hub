@@ -68,18 +68,27 @@ export function EventRegistrationHandler({
       }
 
       // Check if email is already registered
-      const isEmailRegistered = await checkEmailRegistered(currentUser.email);
+      const userEmail = regularUser?.email || user?.email;
+      if (!userEmail) {
+        toast.error("Tidak dapat menemukan email pengguna");
+        return;
+      }
+      
+      const isEmailRegistered = await checkEmailRegistered(userEmail);
       if (isEmailRegistered) {
         toast.error("Email ini sudah terdaftar pada event ini");
         return;
       }
 
+      // Get user name based on the user type
+      const userName = regularUser?.name || user?.user_metadata?.name || '';
+      
       // Prepare registration data
       const registrationData = {
         event_id: eventId,
         user_id: user?.id || null, // Use null for regular users
-        name: currentUser.name || user?.user_metadata?.name || '',
-        email: currentUser.email || user?.email || '',
+        name: userName,
+        email: userEmail,
         phone: '',  // Default empty since we don't have phone in the user object
         university: regularUser?.university || '',
         faculty: '',  // Default empty since we don't have faculty in the user object
