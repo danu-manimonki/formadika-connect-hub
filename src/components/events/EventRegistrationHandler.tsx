@@ -54,13 +54,6 @@ export function EventRegistrationHandler({
         return;
       }
       
-      const currentUser = user || regularUser;
-      
-      if (!currentUser) {
-        toast.error("Anda harus login untuk mendaftar event");
-        return;
-      }
-      
       // Check if already registered
       if (isRegistered) {
         toast.info("Anda sudah terdaftar pada event ini");
@@ -81,7 +74,7 @@ export function EventRegistrationHandler({
       }
 
       // Get user name based on the user type
-      const userName = regularUser?.name || user?.user_metadata?.name || '';
+      const userName = regularUser?.name || (user?.user_metadata?.name as string) || '';
       
       // Prepare registration data
       const registrationData = {
@@ -95,50 +88,39 @@ export function EventRegistrationHandler({
         attendance_status: 'registered'
       };
 
-      // For debugging
       console.log("Registration data:", registrationData);
 
-      const { error } = await supabase
-        .from('event_registrations')
-        .insert(registrationData);
+      // We'll use a more direct approach instead of trying the authenticated route first
+      if (user) {
+        // For authenticated users, use standard insert
+        const { error } = await supabase
+          .from('event_registrations')
+          .insert(registrationData);
 
-      if (error) {
-        console.error("Error details:", error);
-        
-        if (error.code === '23505') {
-          toast.error("Anda sudah terdaftar pada event ini");
-        } else if (error.message.includes('violates row-level security policy')) {
-          // For regular users, we'll use an anonymous insert since they might not have permission
-          if (regularUser && !user) {
-            const anonRegistrationData = { ...registrationData };
-            const { error: anonError } = await supabase
-              .from('event_registrations')
-              .insert(anonRegistrationData);
-              
-            if (anonError) {
-              console.error("Anonymous registration error:", anonError);
-              toast.error("Gagal mendaftar: " + anonError.message);
-              throw anonError;
-            } else {
-              // Success with anonymous registration
-              // Update registered_participants count
-              await supabase.rpc('increment_participants', { event_id: eventId });
-              
-              // Invalidate related queries
-              queryClient.invalidateQueries({ queryKey: ['events'] });
-              queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-              
-              toast.success("Berhasil mendaftar ke event");
-              refetchRegistration();
-              return;
-            }
-          } else {
-            toast.error("Gagal mendaftar: Anda tidak memiliki izin untuk mendaftar");
-          }
-        } else {
+        if (error) {
+          console.error("Error registering (authenticated user):", error);
           toast.error("Gagal mendaftar: " + error.message);
+          throw error;
         }
-        throw error;
+      } else if (regularUser) {
+        // For regular users, use RPC function for anonymous insert
+        // This bypasses RLS policies by using a server-side function
+        const { error } = await supabase.rpc('register_event_anonymous', {
+          p_event_id: eventId,
+          p_name: userName,
+          p_email: userEmail,
+          p_university: regularUser.university || '',
+          p_faculty: ''
+        });
+              
+        if (error) {
+          console.error("Anonymous registration error:", error);
+          toast.error("Gagal mendaftar: " + error.message);
+          throw error;
+        }
+      } else {
+        toast.error("Tidak dapat mendaftar: Data pengguna tidak ditemukan");
+        return;
       }
 
       // Update registered_participants count
