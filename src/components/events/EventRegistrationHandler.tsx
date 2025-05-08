@@ -12,6 +12,17 @@ interface EventRegistrationHandlerProps {
   refetchRegistration: () => void;
 }
 
+// Extend the Supabase client type to include our custom RPC function
+declare module '@supabase/supabase-js' {
+  interface SupabaseClient {
+    rpc<T = any>(
+      fn: "add_admin_role" | "has_role" | "increment_participants" | "insert_regular_user" | "is_admin" | "register_event_anonymous",
+      params?: object,
+      options?: object
+    ): { data: T; error: Error | null };
+  }
+}
+
 export function EventRegistrationHandler({ 
   eventId, 
   isRegistered, 
@@ -105,7 +116,7 @@ export function EventRegistrationHandler({
       } else if (regularUser) {
         // For regular users, use RPC function for anonymous insert
         // This bypasses RLS policies by using a server-side function
-        const { error } = await supabase.rpc('register_event_anonymous', {
+        const { error } = await supabase.rpc("register_event_anonymous", {
           p_event_id: eventId,
           p_name: userName,
           p_email: userEmail,

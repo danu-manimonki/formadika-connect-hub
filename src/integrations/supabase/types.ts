@@ -296,6 +296,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      register_event_anonymous: {
+        Args: {
+          p_event_id: string
+          p_name: string
+          p_email: string
+          p_university: string
+          p_faculty: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
