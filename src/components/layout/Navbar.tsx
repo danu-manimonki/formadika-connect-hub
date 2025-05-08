@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -133,10 +132,6 @@ const Navbar = () => {
           <div className="ml-4 flex items-center gap-2">
             {isLoggedIn ? (
               <>
-                <div className="text-sm mr-2">
-                  Halo, {userName}
-                </div>
-                
                 {isAdmin ? (
                   <Button 
                     asChild 

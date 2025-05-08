@@ -137,9 +137,11 @@ export function EventRegistrationHandler({
       // Update registered_participants count
       await supabase.rpc('increment_participants', { event_id: eventId });
       
-      // Invalidate related queries
+      // Invalidate related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['eventRegistration', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['eventRegistrations', eventId] });
       
       toast.success("Berhasil mendaftar ke event");
       refetchRegistration();

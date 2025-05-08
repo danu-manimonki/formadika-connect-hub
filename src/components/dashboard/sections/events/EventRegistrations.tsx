@@ -2,13 +2,15 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Plus, Edit, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RegistrationsFilters } from "./registrations/RegistrationsFilters";
 import { RegistrationsTable } from "./registrations/RegistrationsTable";
 import { UpdateStatusDialog } from "./registrations/UpdateStatusDialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { RegistrationForm } from "./registrations/RegistrationForm";
 
 interface EventRegistrationProps {
   eventId: string;
@@ -19,17 +21,26 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [registrationToUpdate, setRegistrationToUpdate] = useState<any>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [registrationToEdit, setRegistrationToEdit] = useState<any>(null);
 
   const { data: registrations = [], isLoading, refetch } = useQuery({
     queryKey: ['eventRegistrations', eventId],
     queryFn: async () => {
+      console.log("Fetching registrations for event:", eventId);
       const { data, error } = await supabase
         .from('event_registrations')
         .select('*')
         .eq('event_id', eventId)
         .order('registration_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching registrations:", error);
+        throw error;
+      }
+
+      console.log("Fetched registrations:", data);
       return data;
     }
   });
@@ -63,6 +74,76 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Gagal memperbarui status");
+    }
+  };
+
+  const handleAddRegistration = async (data: any) => {
+    try {
+      const registrationData = {
+        ...data,
+        event_id: eventId,
+        registration_date: new Date().toISOString(),
+        attendance_status: 'registered'
+      };
+
+      const { error } = await supabase
+        .from('event_registrations')
+        .insert(registrationData);
+
+      if (error) throw error;
+
+      // Update registered_participants count
+      await supabase.rpc('increment_participants', { event_id: eventId });
+      
+      toast.success("Pendaftar berhasil ditambahkan");
+      setIsAddFormOpen(false);
+      refetch();
+    } catch (error: any) {
+      console.error("Error adding registration:", error);
+      toast.error(`Gagal menambahkan pendaftar: ${error.message}`);
+    }
+  };
+
+  const handleEditRegistration = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('event_registrations')
+        .update(data)
+        .eq('id', registrationToEdit.id);
+
+      if (error) throw error;
+      
+      toast.success("Data pendaftar berhasil diperbarui");
+      setIsEditFormOpen(false);
+      setRegistrationToEdit(null);
+      refetch();
+    } catch (error: any) {
+      console.error("Error updating registration:", error);
+      toast.error(`Gagal memperbarui data: ${error.message}`);
+    }
+  };
+
+  const handleDeleteRegistration = async (id: string) => {
+    try {
+      if (!confirm("Apakah Anda yakin ingin menghapus pendaftaran ini?")) return;
+
+      const { error } = await supabase
+        .from('event_registrations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      // Update registered_participants count
+      await supabase.from('events')
+        .update({ registered_participants: Math.max((event?.registered_participants || 1) - 1, 0) })
+        .eq('id', eventId);
+      
+      toast.success("Pendaftar berhasil dihapus");
+      refetch();
+    } catch (error: any) {
+      console.error("Error deleting registration:", error);
+      toast.error(`Gagal menghapus pendaftar: ${error.message}`);
     }
   };
 
@@ -111,6 +192,11 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     setIsUpdateDialogOpen(true);
   };
 
+  const handleEditButton = (registration: any) => {
+    setRegistrationToEdit(registration);
+    setIsEditFormOpen(true);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -121,9 +207,14 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
             {event?.max_participants ? ` (Kuota: ${event.max_participants})` : ''}
           </CardDescription>
         </div>
-        <Button onClick={exportToCSV} className="gap-2" variant="outline">
-          <Download className="h-4 w-4" /> Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsAddFormOpen(true)} className="gap-2" variant="outline">
+            <Plus className="h-4 w-4" /> Tambah Pendaftar
+          </Button>
+          <Button onClick={exportToCSV} className="gap-2" variant="outline">
+            <Download className="h-4 w-4" /> Export CSV
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <RegistrationsFilters 
@@ -140,6 +231,8 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
             searchTerm={searchTerm}
             selectedStatus={selectedStatus}
             onUpdateStatus={handleSelectRegistration}
+            onEdit={handleEditButton}
+            onDelete={handleDeleteRegistration}
           />
         </div>
       </CardContent>
@@ -152,6 +245,44 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
           onUpdate={handleUpdateStatus}
         />
       )}
+
+      {/* Add Registration Sheet */}
+      <Sheet open={isAddFormOpen} onOpenChange={setIsAddFormOpen}>
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px] overflow-y-auto max-h-screen">
+          <SheetHeader>
+            <SheetTitle>Tambah Pendaftar Baru</SheetTitle>
+            <SheetDescription>
+              Tambahkan peserta baru untuk kegiatan ini
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <RegistrationForm onSubmit={handleAddRegistration} />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Edit Registration Sheet */}
+      <Sheet open={isEditFormOpen} onOpenChange={(open) => {
+        if (!open) setRegistrationToEdit(null);
+        setIsEditFormOpen(open);
+      }}>
+        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px] overflow-y-auto max-h-screen">
+          <SheetHeader>
+            <SheetTitle>Edit Data Pendaftar</SheetTitle>
+            <SheetDescription>
+              Perbarui informasi pendaftar
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            {registrationToEdit && (
+              <RegistrationForm 
+                onSubmit={handleEditRegistration} 
+                initialData={registrationToEdit} 
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 }

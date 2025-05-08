@@ -38,7 +38,7 @@ export function useEventDetail(eventId: string | undefined) {
   });
 
   const { data: isRegistered, refetch: refetchRegistration } = useQuery({
-    queryKey: ['eventRegistration', eventId, user?.id || regularUser?.id],
+    queryKey: ['eventRegistration', eventId, user?.id || regularUser?.email],
     queryFn: async () => {
       if (!eventId) return false;
       
@@ -81,7 +81,10 @@ export function useEventDetail(eventId: string | undefined) {
       
       return false;
     },
-    enabled: !!eventId && !!(user?.id || regularUser?.email)
+    enabled: !!eventId && !!(user?.id || regularUser?.email),
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0 // Don't cache the result
   });
 
   // Get current user info (either from Supabase or regular user)

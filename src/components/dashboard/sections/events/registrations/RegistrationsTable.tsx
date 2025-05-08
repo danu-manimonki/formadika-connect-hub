@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react";
+import { Mail, Edit, Trash2 } from "lucide-react";
 import { RegistrationStatusBadge } from "./RegistrationStatusBadge";
 
 interface RegistrationsTableProps {
@@ -10,6 +10,8 @@ interface RegistrationsTableProps {
   searchTerm: string;
   selectedStatus: string;
   onUpdateStatus: (registration: any) => void;
+  onEdit: (registration: any) => void;
+  onDelete: (id: string) => void;
 }
 
 export function RegistrationsTable({ 
@@ -17,7 +19,9 @@ export function RegistrationsTable({
   isLoading, 
   searchTerm, 
   selectedStatus,
-  onUpdateStatus
+  onUpdateStatus,
+  onEdit,
+  onDelete
 }: RegistrationsTableProps) {
   return (
     <Table>
@@ -66,6 +70,20 @@ export function RegistrationsTable({
                     onClick={() => onUpdateStatus(registration)}
                   >
                     Ubah Status
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => onEdit(registration)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => onDelete(registration.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon">
                     <Mail className="h-4 w-4" />
