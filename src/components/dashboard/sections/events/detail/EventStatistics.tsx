@@ -35,8 +35,8 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
   });
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6 w-full">
+      <Card className="w-full">
         <CardContent className="pt-6">
           <h3 className="font-semibold mb-4">Statistik Event</h3>
           <div className="space-y-4">
@@ -85,7 +85,7 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="w-full">
         <CardContent className="pt-6">
           <h3 className="font-semibold mb-4">Aksi Cepat</h3>
           <div className="space-y-2">

@@ -28,7 +28,7 @@ export default function UserDashboard() {
       // Get all event registrations for this user
       const { data: registrations, error: regError } = await supabase
         .from('event_registrations')
-        .select('event_id')
+        .select('*, events(*)')
         .eq('email', user.email);
       
       if (regError) {
@@ -36,21 +36,13 @@ export default function UserDashboard() {
         return [];
       }
       
-      if (!registrations.length) return [];
+      if (!registrations?.length) return [];
       
-      // Get full event details for all registered events
-      const eventIds = registrations.map(reg => reg.event_id);
-      const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select('*')
-        .in('id', eventIds);
-        
-      if (eventsError) {
-        console.error("Error fetching events:", eventsError);
-        return [];
-      }
-      
-      return events as Event[];
+      // Transform the data to get events with registration status
+      return registrations.map(reg => ({
+        ...reg.events,
+        attendance_status: reg.attendance_status
+      })) as Event[];
     },
     enabled: !!user?.email
   });
@@ -157,6 +149,19 @@ export default function UserDashboard() {
                                 <Clock className="h-3.5 w-3.5 mr-1.5" />
                                 {event.time}
                               </div>
+                              {event.attendance_status && (
+                                <div className="mt-2">
+                                  <Badge variant={
+                                    event.attendance_status === 'attended' ? 'success' : 
+                                    event.attendance_status === 'registered' ? 'default' : 'secondary'
+                                  }>
+                                    {event.attendance_status === 'registered' ? 'Terdaftar' : 
+                                     event.attendance_status === 'attended' ? 'Hadir' : 
+                                     event.attendance_status === 'absent' ? 'Tidak Hadir' : 
+                                     event.attendance_status}
+                                  </Badge>
+                                </div>
+                              )}
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               <Badge variant={event.status === 'completed' ? 'secondary' : 'default'}>

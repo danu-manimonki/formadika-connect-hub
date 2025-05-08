@@ -20,8 +20,20 @@ export function useEventsQuery() {
         throw error;
       }
 
-      console.log("Events fetched:", data);
-      return data as Event[];
+      // Update the status based on date if needed
+      const today = new Date();
+      const updatedEvents = data?.map(event => {
+        const eventDate = new Date(event.date);
+        
+        // Compare dates to determine real status
+        if (event.status === 'upcoming' && eventDate < today) {
+          return { ...event, status: 'ongoing' };
+        }
+        return event;
+      });
+      
+      console.log("Events fetched:", updatedEvents);
+      return updatedEvents as Event[];
     }
   });
 }
