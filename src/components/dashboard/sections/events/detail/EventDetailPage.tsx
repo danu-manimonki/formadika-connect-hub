@@ -5,14 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { EventForm } from "../EventForm";
-import { EventRegistrations } from "../EventRegistrations";
+import { EventForm } from "./EventForm";
+import { EventRegistrations } from "./EventRegistrations";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/types/database";
 import { EventHeader } from "./EventHeader";
 import { EventOverview } from "./EventOverview";
 import { EventActions } from "./EventActions";
 import { EventStatistics } from "./EventStatistics";
+import { EventImage } from "./EventImage";
 
 interface EventDetailPageProps {
   eventId: string;
@@ -42,21 +43,6 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
         type: data.type === 'online' ? 'online' : 'offline'
       } as Event;
     }
-  });
-
-  // Fetch registrations to display the accurate count
-  const { data: registrations = [] } = useQuery({
-    queryKey: ['eventRegistrations', eventId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('event_registrations')
-        .select('*')
-        .eq('event_id', eventId);
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!eventId
   });
 
   const handleEditSuccess = () => {
@@ -98,11 +84,11 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
               <TabsTrigger value="overview">Informasi Event</TabsTrigger>
-              <TabsTrigger value="registrations">Pendaftar ({registrations?.length || 0})</TabsTrigger>
+              <TabsTrigger value="registrations">Pendaftar ({event.registered_participants || 0})</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
               <EventOverview 
@@ -118,11 +104,19 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
           </Tabs>
         </div>
 
-        <EventStatistics 
-          event={event}
-          onViewRegistrations={handleViewRegistrations}
-          onEdit={() => setIsEditSheetOpen(true)}
-        />
+        <div className="space-y-6">
+          <EventStatistics 
+            event={event}
+            onViewRegistrations={handleViewRegistrations}
+            onEdit={() => setIsEditSheetOpen(true)}
+          />
+          
+          {/* Event Image moved below the Statistics section */}
+          <EventImage 
+            imageUrl={event.image_url} 
+            title={event.title} 
+          />
+        </div>
       </div>
 
       <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
