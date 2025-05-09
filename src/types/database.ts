@@ -15,6 +15,7 @@ export interface Event {
   registered_participants?: number;
   notification_sent?: boolean;
   status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  attendance_status?: 'registered' | 'confirmed' | 'attended' | 'absent' | 'cancelled';
 }
 
 export interface GalleryItem {

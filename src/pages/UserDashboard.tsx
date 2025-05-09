@@ -70,7 +70,7 @@ export default function UserDashboard() {
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold mb-2">Dashboard Anggota</h1>
             <p className="text-lg text-formadika-50">
-              Selamat datang, {user.name}
+              Selamat datang, {user?.name}
             </p>
           </div>
         </div>
@@ -89,16 +89,16 @@ export default function UserDashboard() {
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Nama</p>
-                  <p className="font-medium">{user.name}</p>
+                  <p className="font-medium">{user?.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Email</p>
-                  <p className="font-medium">{user.email}</p>
+                  <p className="font-medium">{user?.email}</p>
                 </div>
-                {user.university && (
+                {user?.university && (
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Universitas</p>
-                    <p className="font-medium">{user.university}</p>
+                    <p className="font-medium">{user?.university}</p>
                   </div>
                 )}
               </CardContent>
@@ -152,8 +152,8 @@ export default function UserDashboard() {
                               {event.attendance_status && (
                                 <div className="mt-2">
                                   <Badge variant={
-                                    event.attendance_status === 'attended' ? 'success' : 
-                                    event.attendance_status === 'registered' ? 'default' : 'secondary'
+                                    event.attendance_status === 'attended' ? 'secondary' : 
+                                    event.attendance_status === 'registered' ? 'default' : 'outline'
                                   }>
                                     {event.attendance_status === 'registered' ? 'Terdaftar' : 
                                      event.attendance_status === 'attended' ? 'Hadir' : 

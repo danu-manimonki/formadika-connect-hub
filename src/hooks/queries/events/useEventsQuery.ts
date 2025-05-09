@@ -28,6 +28,9 @@ export function useEventsQuery() {
         // Compare dates to determine real status
         if (event.status === 'upcoming' && eventDate < today) {
           return { ...event, status: 'ongoing' };
+        } else if (event.status === 'ongoing' && eventDate.getTime() + (24 * 60 * 60 * 1000) < today.getTime()) {
+          // If event date was more than 1 day ago, mark as completed
+          return { ...event, status: 'completed' };
         }
         return event;
       });
