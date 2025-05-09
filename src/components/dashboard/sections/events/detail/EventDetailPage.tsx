@@ -44,6 +44,21 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
     }
   });
 
+  // Fetch registrations to display the accurate count
+  const { data: registrations = [] } = useQuery({
+    queryKey: ['eventRegistrations', eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select('*')
+        .eq('event_id', eventId);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!eventId
+  });
+
   const handleEditSuccess = () => {
     setIsEditSheetOpen(false);
     refetch();
