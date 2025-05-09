@@ -1,7 +1,5 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { RegistrationsFilters } from "./registrations/RegistrationsFilters";
@@ -18,6 +16,7 @@ import {
   exportToCSV, 
   updateRegistrationStatus 
 } from "./registrations/actions/registrationActions";
+import { useQuery } from "@tanstack/react-query";
 
 interface EventRegistrationProps {
   eventId: string;
@@ -30,8 +29,8 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [registrationToEdit, setRegistrationToEdit] = useState<any>(null);
 
-  // Fetch registrations
-  const { data: registrations = [], isLoading, refetch } = useRegistrations(eventId);
+  // Fetch registrations with improved hook
+  const { data: registrations = [], isLoading, refetch, count: registrationCount } = useRegistrations(eventId);
   
   // Filter registrations
   const {
@@ -107,9 +106,6 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
   const handleExportCSV = () => {
     exportToCSV(filteredRegistrations, event?.title);
   };
-
-  // Actual registration count
-  const registrationCount = registrations.length;
 
   return (
     <Card>

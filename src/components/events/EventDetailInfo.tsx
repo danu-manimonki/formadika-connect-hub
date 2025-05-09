@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, Users, Wifi, WifiOff, Check } from "lucide-react";
@@ -7,6 +6,8 @@ import { Badge } from "../ui/badge";
 import { Link } from "react-router-dom";
 import { RegularUser } from "@/types/database";
 import { User } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventDetailInfoProps {
   event: Event;
@@ -31,6 +32,25 @@ export function EventDetailInfo({
 }: EventDetailInfoProps) {
   // Check if user is either a regular user or authenticated user
   const isLoggedIn = !!user;
+  
+  // Get accurate registration count
+  const { data: registrationCount } = useQuery({
+    queryKey: ['publicEventRegistrationCount', event.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('event_registrations')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_id', event.id);
+      
+      if (error) {
+        console.error("Error fetching registration count:", error);
+        return event.registered_participants || 0;
+      }
+      
+      return count || 0;
+    },
+    initialData: event.registered_participants || 0
+  });
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -102,7 +122,7 @@ export function EventDetailInfo({
                 <div className="flex items-center text-gray-600">
                   <Users className="h-5 w-5 mr-3 text-formadika-600" />
                   <span>
-                    {event.registered_participants || 0} pendaftar 
+                    {registrationCount} pendaftar 
                     {event.max_participants ? ` (Kuota: ${event.max_participants})` : ''}
                   </span>
                 </div>

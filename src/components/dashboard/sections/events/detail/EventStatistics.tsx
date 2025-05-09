@@ -16,7 +16,7 @@ interface EventStatisticsProps {
 export function EventStatistics({ event, onViewRegistrations, onEdit }: EventStatisticsProps) {
   const navigate = useNavigate();
   
-  // Get registration count for this event
+  // Get accurate registration count for this event
   const { data: registrationCount = 0, isLoading } = useQuery({
     queryKey: ['eventRegistrationCount', event.id],
     queryFn: async () => {
@@ -28,6 +28,14 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
       if (error) {
         console.error("Error fetching event registration count:", error);
         return 0;
+      }
+      
+      // If count was successful, update the event's registered_participants count in the database
+      if (count !== null && count !== event.registered_participants) {
+        await supabase
+          .from('events')
+          .update({ registered_participants: count })
+          .eq('id', event.id);
       }
       
       return count || 0;
