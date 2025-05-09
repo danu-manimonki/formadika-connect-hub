@@ -5,15 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { EventForm } from "./EventForm";
-import { EventRegistrations } from "./EventRegistrations";
+import { EventForm } from "../EventForm";
+import { EventRegistrations } from "../EventRegistrations";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/types/database";
-import { EventHeader } from "./detail/EventHeader";
-import { EventImage } from "./detail/EventImage";
-import { EventOverview } from "./detail/EventOverview";
-import { EventActions } from "./detail/EventActions";
-import { EventStatistics } from "./detail/EventStatistics";
+import { EventHeader } from "./EventHeader";
+import { EventImage } from "./EventImage";
+import { EventOverview } from "./EventOverview";
+import { EventActions } from "./EventActions";
+import { EventStatistics } from "./EventStatistics";
 
 interface EventDetailPageProps {
   eventId: string;
@@ -85,6 +85,11 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
+          <EventImage 
+            imageUrl={event.image_url} 
+            title={event.title} 
+          />
+
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
               <TabsTrigger value="overview">Informasi Event</TabsTrigger>
@@ -104,18 +109,11 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
           </Tabs>
         </div>
 
-        <div className="space-y-6">
-          <EventImage 
-            imageUrl={event.image_url} 
-            title={event.title} 
-          />
-          
-          <EventStatistics 
-            event={event}
-            onViewRegistrations={handleViewRegistrations}
-            onEdit={() => setIsEditSheetOpen(true)}
-          />
-        </div>
+        <EventStatistics 
+          event={event}
+          onViewRegistrations={handleViewRegistrations}
+          onEdit={() => setIsEditSheetOpen(true)}
+        />
       </div>
 
       <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
