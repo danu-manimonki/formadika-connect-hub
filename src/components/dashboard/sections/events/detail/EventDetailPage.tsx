@@ -10,7 +10,6 @@ import { EventRegistrations } from "../EventRegistrations";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/types/database";
 import { EventHeader } from "./EventHeader";
-import { EventImage } from "./EventImage";
 import { EventOverview } from "./EventOverview";
 import { EventActions } from "./EventActions";
 import { EventStatistics } from "./EventStatistics";
@@ -85,15 +84,10 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
-          <EventImage 
-            imageUrl={event.image_url} 
-            title={event.title} 
-          />
-
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
               <TabsTrigger value="overview">Informasi Event</TabsTrigger>
-              <TabsTrigger value="registrations">Pendaftar ({event.registered_participants || 0})</TabsTrigger>
+              <TabsTrigger value="registrations">Pendaftar ({registrations?.length || 0})</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
               <EventOverview 

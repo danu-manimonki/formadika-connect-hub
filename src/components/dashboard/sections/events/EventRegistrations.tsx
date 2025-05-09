@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -195,6 +196,9 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     setRegistrationToEdit(registration);
     setIsEditFormOpen(true);
   };
+  
+  // Use actual registration count instead of event.registered_participants
+  const registrationCount = registrations.length;
 
   return (
     <Card>
