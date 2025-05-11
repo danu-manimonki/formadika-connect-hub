@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Event } from "@/types/database";
-import { Mail, Share, Edit, Download, ExternalLink } from "lucide-react";
+import { Mail, Share, Edit, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,7 +43,7 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
   });
 
   return (
-    <>
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Statistik Event</CardTitle>
@@ -110,6 +110,6 @@ export function EventStatistics({ event, onViewRegistrations, onEdit }: EventSta
           </Button>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }

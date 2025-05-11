@@ -1,13 +1,10 @@
 
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import { RegistrationsFilters } from "./registrations/RegistrationsFilters";
 import { RegistrationsTable } from "./registrations/RegistrationsTable";
 import { UpdateStatusDialog } from "./registrations/UpdateStatusDialog";
 import { RegistrationForm } from "./registrations/RegistrationForm";
-import { RegistrationsHeader } from "./registrations/RegistrationsHeader";
 import { useRegistrations } from "./registrations/hooks/useRegistrations";
 import { useRegistrationFilters } from "./registrations/useRegistrationFilters";
 import { 
@@ -112,8 +109,8 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <div className="relative w-full max-w-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+        <div className="relative w-full sm:max-w-sm">
           <input
             type="text"
             placeholder="Cari berdasarkan nama atau email..."
@@ -123,7 +120,7 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
           />
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <select 
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
@@ -137,7 +134,7 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
           </select>
           
           <Button onClick={() => setIsAddFormOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Tambah Pendaftar
+            <Plus className="h-4 w-4 mr-1" /> Tambah
           </Button>
           
           <Button variant="outline" size="sm" onClick={handleExportCSV}>

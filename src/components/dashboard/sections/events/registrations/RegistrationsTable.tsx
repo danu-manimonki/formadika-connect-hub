@@ -25,7 +25,7 @@ export function RegistrationsTable({
   onDelete
 }: RegistrationsTableProps) {
   return (
-    <ScrollArea className="h-[400px] overflow-auto w-full">
+    <ScrollArea className="h-[400px] w-full">
       <Table>
         <TableHeader>
           <TableRow>
