@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Edit, Trash2 } from "lucide-react";
 import { RegistrationStatusBadge } from "./RegistrationStatusBadge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface RegistrationsTableProps {
   registrations: any[];
@@ -24,6 +25,12 @@ export function RegistrationsTable({
   onEdit,
   onDelete
 }: RegistrationsTableProps) {
+  const handleSendEmail = (email: string) => {
+    // Open email client with recipient's email
+    window.open(`mailto:${email}`, '_blank');
+    toast.success("Membuka aplikasi email");
+  };
+
   return (
     <ScrollArea className="h-[400px] w-full">
       <Table>
@@ -87,7 +94,11 @@ export function RegistrationsTable({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleSendEmail(registration.email)}
+                    >
                       <Mail className="h-4 w-4" />
                     </Button>
                   </div>

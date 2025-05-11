@@ -1,10 +1,9 @@
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { RegistrationsTable } from "./registrations/RegistrationsTable";
 import { UpdateStatusDialog } from "./registrations/UpdateStatusDialog";
-import { RegistrationForm } from "./registrations/RegistrationForm";
+import { RegistrationFormSheet } from "./registrations/RegistrationFormSheet";
 import { useRegistrations } from "./registrations/hooks/useRegistrations";
 import { useRegistrationFilters } from "./registrations/useRegistrationFilters";
 import { 
@@ -15,8 +14,7 @@ import {
   updateRegistrationStatus 
 } from "./registrations/actions/registrationActions";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { RegistrationsFilters } from "./registrations/RegistrationsFilters";
 
 interface EventRegistrationProps {
   eventId: string;
@@ -107,41 +105,18 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
     exportToCSV(filteredRegistrations, event?.title);
   };
 
+  const handleAddButtonClick = () => setIsAddFormOpen(true);
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
-        <div className="relative w-full sm:max-w-sm">
-          <input
-            type="text"
-            placeholder="Cari berdasarkan nama atau email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-formadika-600"
-          />
-        </div>
-        
-        <div className="flex gap-2 w-full sm:w-auto">
-          <select 
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-formadika-600"
-          >
-            <option value="all">Semua Status</option>
-            <option value="registered">Terdaftar</option>
-            <option value="attended">Hadir</option>
-            <option value="absent">Tidak Hadir</option>
-            <option value="cancelled">Dibatalkan</option>
-          </select>
-          
-          <Button onClick={() => setIsAddFormOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" /> Tambah
-          </Button>
-          
-          <Button variant="outline" size="sm" onClick={handleExportCSV}>
-            Export CSV
-          </Button>
-        </div>
-      </div>
+      <RegistrationsFilters 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
+        onAddClick={handleAddButtonClick}
+        onExportClick={handleExportCSV}
+      />
 
       <div className="border rounded-md overflow-hidden">
         <RegistrationsTable 
@@ -164,43 +139,27 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
         />
       )}
 
-      {/* Add Registration Sheet */}
-      <Sheet open={isAddFormOpen} onOpenChange={setIsAddFormOpen}>
-        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px] overflow-y-auto max-h-screen">
-          <SheetHeader>
-            <SheetTitle>Tambah Pendaftar Baru</SheetTitle>
-            <SheetDescription>
-              Tambahkan peserta baru untuk kegiatan ini
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6">
-            <RegistrationForm onSubmit={handleAddRegistration} />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Add Registration Form */}
+      <RegistrationFormSheet
+        isOpen={isAddFormOpen}
+        onOpenChange={setIsAddFormOpen}
+        onSubmit={handleAddRegistration}
+        title="Tambah Pendaftar Baru"
+        description="Tambahkan peserta baru untuk kegiatan ini"
+      />
 
-      {/* Edit Registration Sheet */}
-      <Sheet open={isEditFormOpen} onOpenChange={(open) => {
-        if (!open) setRegistrationToEdit(null);
-        setIsEditFormOpen(open);
-      }}>
-        <SheetContent className="w-[90%] sm:max-w-[540px] lg:max-w-[640px] overflow-y-auto max-h-screen">
-          <SheetHeader>
-            <SheetTitle>Edit Data Pendaftar</SheetTitle>
-            <SheetDescription>
-              Perbarui informasi pendaftar
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6">
-            {registrationToEdit && (
-              <RegistrationForm 
-                onSubmit={handleEditRegistration} 
-                initialData={registrationToEdit} 
-              />
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Edit Registration Form */}
+      <RegistrationFormSheet
+        isOpen={isEditFormOpen}
+        onOpenChange={(open) => {
+          if (!open) setRegistrationToEdit(null);
+          setIsEditFormOpen(open);
+        }}
+        onSubmit={handleEditRegistration}
+        initialData={registrationToEdit}
+        title="Edit Data Pendaftar"
+        description="Perbarui informasi pendaftar"
+      />
     </div>
   );
 }
