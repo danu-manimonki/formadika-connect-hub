@@ -110,7 +110,7 @@ export function EventRegistrationHandler({
             .insert(registrationData);
 
           if (error) {
-            if (error.code === '23505') { // PostgreSQL unique violation code
+            if (error.message?.includes("duplicate key") || error.message?.includes("23505")) {
               toast.error("Anda sudah terdaftar pada event ini");
               return;
             }
@@ -127,7 +127,7 @@ export function EventRegistrationHandler({
           });
                 
           if (error) {
-            if (error.message?.includes("duplicate key") || error.code === '23505') {
+            if (error.message?.includes("duplicate key")) {
               toast.error("Email ini sudah terdaftar pada event ini");
               return;
             }
