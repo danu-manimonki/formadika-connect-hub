@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { EventFilters } from "./events/EventFilters";
 import { EventTable } from "./events/EventTable";
 import { EventForm } from "./events/EventForm";
 import { UpcomingEventsNotification } from "../UpcomingEventsNotification";
-import { EventDetailPage } from "./events/EventDetailPage";
+import { EventDetailPage } from "./events/detail/EventDetailPage";
 
 export default function EventsSection() {
   const [searchTerm, setSearchTerm] = useState("");
