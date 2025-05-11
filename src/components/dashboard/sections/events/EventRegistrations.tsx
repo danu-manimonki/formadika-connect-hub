@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -17,6 +18,8 @@ import {
   updateRegistrationStatus 
 } from "./registrations/actions/registrationActions";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface EventRegistrationProps {
   eventId: string;
@@ -108,34 +111,52 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
   };
 
   return (
-    <Card>
-      <RegistrationsHeader 
-        registrationCount={registrationCount}
-        filteredCount={filteredRegistrations.length}
-        maxParticipants={event?.max_participants}
-        onOpenAddForm={() => setIsAddFormOpen(true)}
-        onExportCSV={handleExportCSV}
-      />
-      <CardContent>
-        <RegistrationsFilters 
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          selectedStatus={selectedStatus}
-          onStatusChange={setSelectedStatus}
-        />
-
-        <div className="border rounded-md">
-          <RegistrationsTable 
-            registrations={filteredRegistrations}
-            isLoading={isLoading}
-            searchTerm={searchTerm}
-            selectedStatus={selectedStatus}
-            onUpdateStatus={handleSelectRegistration}
-            onEdit={handleEditButton}
-            onDelete={handleDeleteRegistration}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="relative w-full max-w-sm">
+          <input
+            type="text"
+            placeholder="Cari berdasarkan nama atau email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-formadika-600"
           />
         </div>
-      </CardContent>
+        
+        <div className="flex gap-2">
+          <select 
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-formadika-600"
+          >
+            <option value="all">Semua Status</option>
+            <option value="registered">Terdaftar</option>
+            <option value="attended">Hadir</option>
+            <option value="absent">Tidak Hadir</option>
+            <option value="cancelled">Dibatalkan</option>
+          </select>
+          
+          <Button onClick={() => setIsAddFormOpen(true)} size="sm">
+            <Plus className="h-4 w-4 mr-1" /> Tambah Pendaftar
+          </Button>
+          
+          <Button variant="outline" size="sm" onClick={handleExportCSV}>
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
+      <div className="border rounded-md overflow-hidden">
+        <RegistrationsTable 
+          registrations={filteredRegistrations}
+          isLoading={isLoading}
+          searchTerm={searchTerm}
+          selectedStatus={selectedStatus}
+          onUpdateStatus={handleSelectRegistration}
+          onEdit={handleEditButton}
+          onDelete={handleDeleteRegistration}
+        />
+      </div>
       
       {registrationToUpdate && (
         <UpdateStatusDialog 
@@ -183,6 +204,6 @@ export function EventRegistrations({ eventId }: EventRegistrationProps) {
           </div>
         </SheetContent>
       </Sheet>
-    </Card>
+    </div>
   );
 }

@@ -10,10 +10,11 @@ import { EventRegistrations } from "../EventRegistrations";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/types/database";
 import { EventHeader } from "./EventHeader";
+import { EventImage } from "./EventImage";
 import { EventOverview } from "./EventOverview";
 import { EventActions } from "./EventActions";
 import { EventStatistics } from "./EventStatistics";
-import { EventImage } from "./EventImage";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EventDetailPageProps {
   eventId: string;
@@ -23,7 +24,6 @@ interface EventDetailPageProps {
 export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
   const navigate = useNavigate();
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: event, isLoading, refetch } = useQuery({
     queryKey: ['event', eventId],
@@ -49,10 +49,6 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
     setIsEditSheetOpen(false);
     refetch();
     toast.success("Event berhasil diperbarui");
-  };
-
-  const handleViewRegistrations = () => {
-    setActiveTab("registrations");
   };
 
   if (isLoading) {
@@ -82,39 +78,31 @@ export function EventDetailPage({ eventId, onBack }: EventDetailPageProps) {
         onBack={onBack} 
         onEdit={() => setIsEditSheetOpen(true)} 
       />
-
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main Content Area - Left Side (2/3 width) */}
         <div className="md:col-span-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="overview">Informasi Event</TabsTrigger>
-              <TabsTrigger value="registrations">Pendaftar ({event.registered_participants || 0})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="overview" className="space-y-4 mt-4">
-              <EventOverview 
-                event={event} 
-                onViewRegistrations={handleViewRegistrations} 
-              />
-              <EventActions onViewRegistrations={handleViewRegistrations} />
-            </TabsContent>
-            
-            <TabsContent value="registrations">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Pendaftar Kegiatan</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {event.registered_participants || 0} orang sudah mendaftar untuk kegiatan ini
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
               <EventRegistrations eventId={event.id} />
-            </TabsContent>
-          </Tabs>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Sidebar - Right Side (1/3 width) */}
         <div className="space-y-6">
           <EventStatistics 
             event={event}
-            onViewRegistrations={handleViewRegistrations}
+            onViewRegistrations={() => {}}
             onEdit={() => setIsEditSheetOpen(true)}
-          />
-          
-          {/* Event Image moved below the Statistics section */}
-          <EventImage 
-            imageUrl={event.image_url} 
-            title={event.title} 
           />
         </div>
       </div>
