@@ -22,6 +22,24 @@ export async function updateRegistrationStatus(registrationId: string, newStatus
 
 export async function addRegistration(data: any, eventId: string) {
   try {
+    // First, check if registration already exists
+    const { data: existingReg, error: checkError } = await supabase
+      .from('event_registrations')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('email', data.email)
+      .maybeSingle();
+    
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError;
+    }
+    
+    if (existingReg) {
+      toast.error("Email ini sudah terdaftar pada event ini");
+      return false;
+    }
+    
+    // Proceed with registration
     const registrationData = {
       ...data,
       event_id: eventId,
@@ -33,7 +51,14 @@ export async function addRegistration(data: any, eventId: string) {
       .from('event_registrations')
       .insert(registrationData);
 
-    if (error) throw error;
+    if (error) {
+      // Handle unique constraint violation specifically
+      if (error.code === '23505') {
+        toast.error("Email ini sudah terdaftar pada event ini");
+        return false;
+      }
+      throw error;
+    }
 
     // Update registered_participants count
     await supabase.rpc('increment_participants', { event_id: eventId });

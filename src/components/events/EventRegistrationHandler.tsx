@@ -102,51 +102,65 @@ export function EventRegistrationHandler({
       console.log("Registration data:", registrationData);
 
       // We'll use a more direct approach instead of trying the authenticated route first
-      if (user) {
-        // For authenticated users, use standard insert
-        const { error } = await supabase
-          .from('event_registrations')
-          .insert(registrationData);
+      try {
+        if (user) {
+          // For authenticated users, use standard insert
+          const { error } = await supabase
+            .from('event_registrations')
+            .insert(registrationData);
 
-        if (error) {
-          console.error("Error registering (authenticated user):", error);
-          toast.error("Gagal mendaftar: " + error.message);
-          throw error;
+          if (error) {
+            if (error.code === '23505') { // PostgreSQL unique violation code
+              toast.error("Anda sudah terdaftar pada event ini");
+              return;
+            }
+            throw error;
+          }
+        } else if (regularUser) {
+          // For regular users, use RPC function for anonymous insert
+          const { error } = await supabase.rpc("register_event_anonymous", {
+            p_event_id: eventId,
+            p_name: userName,
+            p_email: userEmail,
+            p_university: regularUser.university || '',
+            p_faculty: ''
+          });
+                
+          if (error) {
+            if (error.message?.includes("duplicate key") || error.code === '23505') {
+              toast.error("Email ini sudah terdaftar pada event ini");
+              return;
+            }
+            throw error;
+          }
+        } else {
+          toast.error("Tidak dapat mendaftar: Data pengguna tidak ditemukan");
+          return;
         }
-      } else if (regularUser) {
-        // For regular users, use RPC function for anonymous insert
-        // This bypasses RLS policies by using a server-side function
-        const { error } = await supabase.rpc("register_event_anonymous", {
-          p_event_id: eventId,
-          p_name: userName,
-          p_email: userEmail,
-          p_university: regularUser.university || '',
-          p_faculty: ''
-        });
-              
-        if (error) {
-          console.error("Anonymous registration error:", error);
-          toast.error("Gagal mendaftar: " + error.message);
-          throw error;
+
+        // Update registered_participants count
+        await supabase.rpc('increment_participants', { event_id: eventId });
+        
+        // Invalidate related queries to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+        queryClient.invalidateQueries({ queryKey: ['eventRegistration', eventId] });
+        queryClient.invalidateQueries({ queryKey: ['eventRegistrations', eventId] });
+        
+        toast.success("Berhasil mendaftar ke event");
+        refetchRegistration();
+      } catch (error: any) {
+        console.error("Error during registration:", error);
+        // Handle any other errors that weren't caught by specific conditions
+        if (error.message?.includes("duplicate key")) {
+          toast.error("Email ini sudah terdaftar pada event ini");
+        } else {
+          toast.error(`Gagal mendaftar: ${error.message}`);
         }
-      } else {
-        toast.error("Tidak dapat mendaftar: Data pengguna tidak ditemukan");
-        return;
       }
-
-      // Update registered_participants count
-      await supabase.rpc('increment_participants', { event_id: eventId });
-      
-      // Invalidate related queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['eventRegistration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['eventRegistrations', eventId] });
-      
-      toast.success("Berhasil mendaftar ke event");
-      refetchRegistration();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error registering to event:", error);
+      toast.error(`Gagal mendaftar: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
